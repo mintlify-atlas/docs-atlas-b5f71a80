@@ -1,0 +1,121 @@
+---
+title: "Connect the Brain for Framework Intelligence"
+sidebarTitle: "Brain Setup"
+description: "The Brain is an optional Neo4j/Pinecone teaching graph that gives Larry framework chaining, semantic search, and calibrated grading. Set it up in two steps."
+---
+
+The Brain is a remote intelligence service hosted at `mindrian-brain.onrender.com` that makes Larry sharper. Without it, every MindrianOS command still works — Larry teaches from embedded methodology references and your room context. With it, Larry knows which framework to reach for given where you are, can chain methods intelligently across your problem type, finds matches by meaning instead of keywords, and grades your room against calibrated data from real projects.
+
+<Note>
+Tier 0 (no Brain) is fully functional. Every command works. Every room builds. Every meeting files. The Brain adds enrichment on top of core functionality — it doesn't unlock features that are otherwise blocked.
+</Note>
+
+## What the Brain is
+
+The Brain runs two stores in parallel:
+
+<CardGroup cols={2}>
+  <Card title="Neo4j Framework Graph" icon="circle-nodes">
+    27,900+ nodes, 19,987 relationships. The load-bearing structure is the `FEEDS_INTO` graph — 163 Framework→Framework edges encoding how one methodology's output becomes the next one's input. Built from 30+ years of teaching observation, not theory.
+  </Card>
+  <Card title="Pinecone Semantic Vectors" icon="wand-magic-sparkles">
+    12,485 vectors at 1024 dimensions across five namespaces (core, materials, reference, tools, books). Enables meaning-matching, not keyword-matching — the Brain finds what you need by what it means, not what it's called.
+  </Card>
+</CardGroup>
+
+The graph also powers a calibrated grading engine built from 100+ real projects, scoring rooms on Technical Feasibility, Logical Argument, Tool Usage, Cognitive Bias, and QA — with real grade distributions from actual student and practitioner work.
+
+## What Brain adds vs. Tier 0
+
+| Capability | Tier 0 (no Brain) | Tier 1 (with Brain) |
+|-----------|-------------------|----------------------|
+| All `/mos:` commands | ✓ | ✓ |
+| Room building and filing | ✓ | ✓ |
+| Meeting transcription | ✓ | ✓ |
+| Embedded methodology references | ✓ | ✓ |
+| Framework chain recommendations | Static suggestions | Live `FEEDS_INTO` graph traversal |
+| Semantic search | — | 12,485-vector Pinecone index |
+| Calibrated grading | — | 100+ real project rubric |
+| `/mos:suggest-next` | Basic | Brain-ranked chain with confidence |
+| `/mos:find-connections` | — | Semantic cross-room matching |
+| `/mos:compare-ventures` | — | Calibrated comparison |
+| `/mos:deep-grade` | — | Full rubric with distribution data |
+| `/mos:research` (brain lens) | Degrades gracefully | Methodology-enriched evidence |
+
+The textbook-vs-professor analogy: Tier 0 Larry is good. Tier 1 Larry is a master teacher.
+
+## Two-step setup
+
+<Steps>
+  <Step title="Drop your key in ~/.mindrian.env">
+    Run this in your terminal — replace `<your-key>` with the key you received:
+
+    ```bash
+    echo "MINDRIAN_BRAIN_KEY=<your-key>" > ~/.mindrian.env && chmod 600 ~/.mindrian.env
+    ```
+
+    The `chmod 600` is required. The key resolver refuses to load from a group- or world-readable file.
+
+    Don't have a key yet? Request one at [mindrian-os.com/brain-access](https://mindrian-os.com/brain-access).
+  </Step>
+
+  <Step title="Restart Claude Code">
+    That's it. The plugin's bundled stdio shim auto-loads on every session after restart. No additional commands needed.
+
+    The key resolver checks three locations in order: the `MINDRIAN_BRAIN_KEY` environment variable, `~/.mindrian.env`, and `<cwd>/.env`. The first match wins.
+  </Step>
+</Steps>
+
+## What changed in v1.13.0-beta.20
+
+Before `beta.20`, connecting the Brain required a manual registration command:
+
+```bash
+# Legacy (pre-beta.20) — no longer needed
+claude mcp add -t http -s user -H "Authorization: Bearer $KEY" \
+  -- mindrian-brain https://mindrian-brain.onrender.com/mcp
+```
+
+From `beta.20` onward, the plugin bundles its own stdio shim via `.mcp.json`. The manual `claude mcp add` step is gone. Drop the key, restart — done.
+
+## Auto-migration for pre-beta.20 users
+
+If you wired the Brain manually before `beta.20`, the plugin auto-migrates you on first launch:
+
+1. A pre-migration snapshot is saved to `~/.mindrian/pre-migration-snapshots/<ISO>.json`
+2. The legacy user-scope HTTP-transport entry is removed via `claude mcp remove`
+3. The plugin-bundled stdio entry takes over
+
+The migration never writes to `~/.claude.json` directly. All changes route through the supported `claude mcp <add|remove>` CLI. Re-running the migration is a deterministic no-op.
+
+<Warning>
+If your legacy entry has a different Bearer token than the one in `~/.mindrian.env`, the migration will refuse to auto-migrate and surface a warning asking you to rotate keys first.
+</Warning>
+
+## Diagnostics
+
+If something isn't working, run the five-layer smoke test:
+
+```bash
+/mos:doctor --brain-smoke
+```
+
+This probes each layer in sequence and reports the exact failing layer:
+
+1. Plugin root resolver
+2. Brain key resolver
+3. HTTPS schema probe to `mindrian-brain.onrender.com`
+4. MCP stdio handshake against the bundled shim
+5. End-to-end `brain_schema` call through the MCP path
+
+For machine-readable output (useful when filing a bug report):
+
+```bash
+/mos:doctor --brain-smoke --json
+```
+
+## Privacy
+
+The Brain never sees your room. Brain queries carry methodology questions only — framework names, problem type classifications, chain traversal parameters. Your notes, decisions, meeting transcripts, and filed evidence never leave your machine.
+
+The privacy line is enforced at the code level. A source-grep audit in the build pipeline fails on any `/mos:` literal appearing near a `brain`/`query`/`fetch`/`http` token in the Brain client or workflow resolver. Commands never enter the Brain. User content never enters the Brain.

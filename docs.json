@@ -1,72 +1,126 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "MindrianOS",
+  "theme": "maple",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#cea279",
+    "light": "#1d3e65",
+    "dark": "#84847c"
   },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
+  "favicon": "https://media.brand.dev/e493ca86-1086-4806-9962-c851edc860ca.svg",
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "https://media.brand.dev/fe958a3e-0b1a-4fe5-8263-ce71ab1a8dca.svg",
+    "dark": "https://media.brand.dev/fe958a3e-0b1a-4fe5-8263-ce71ab1a8dca.svg"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
     "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "type": "github",
+      "href": "https://github.com/jsagir/mindrian-os-plugin"
     }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/jsagir/mindrian-os-plugin"
     }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/larry",
+              "concepts/data-room",
+              "concepts/pws-methodology",
+              "concepts/three-surfaces"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/first-session",
+              "guides/opportunity-bank",
+              "guides/brain-setup",
+              "guides/conversation-modes"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/settings",
+              "configuration/hooks",
+              "configuration/privacy"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/troubleshooting",
+              "reference/changelog"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Commands",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "commands/overview"
+            ]
+          },
+          {
+            "group": "Room & Discovery",
+            "pages": [
+              "commands/ignite",
+              "commands/discover",
+              "commands/new-project",
+              "commands/room",
+              "commands/snapshot"
+            ]
+          },
+          {
+            "group": "Problem Framing",
+            "pages": [
+              "commands/beautiful-question",
+              "commands/analyze-needs",
+              "commands/map-unknowns",
+              "commands/bono",
+              "commands/jtbd"
+            ]
+          },
+          {
+            "group": "Research & Intelligence",
+            "pages": [
+              "commands/research",
+              "commands/opportunities",
+              "commands/qualify-opportunity",
+              "commands/graph",
+              "commands/find-connections"
+            ]
+          },
+          {
+            "group": "Grading & Strategy",
+            "pages": [
+              "commands/grade",
+              "commands/suggest-next",
+              "commands/pipeline",
+              "commands/status"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

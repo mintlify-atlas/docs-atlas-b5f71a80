@@ -1,0 +1,103 @@
+---
+title: "/mos:beautiful-question — Reframe Before Solving"
+sidebarTitle: "beautiful-question"
+description: "/mos:beautiful-question runs the Beautiful Question reframing methodology — Larry challenges your problem statement and surfaces the real problem beneath the stated one."
+---
+
+When the framing feels stuck, `/mos:beautiful-question` reshapes the challenge as **Why / What-if / How**. The right question unlocks more progress than a better answer. Rather than jumping to solutions, this command walks you through a structured reframing progression — first asking *why* the problem is the problem, then inverting assumptions with *what-if*, and finally opening toward *how* once the real challenge is visible. It is the first move in the PWS methodology's problem-definition stage: reframe before you solve.
+
+## Usage
+
+```
+/mos:beautiful-question
+```
+
+No arguments required. Larry reads `room/STATE.md` for venture context and opens with a pace question — quick pass or deep dive — before beginning the Why / What-if / How walk.
+
+<Note>
+  **Best time to use it:** When the problem statement you're working from feels borrowed, inherited, or like a symptom rather than a root. If you have already tried to solution and the answer didn't hold, start here.
+</Note>
+
+## What happens
+
+<Steps>
+  <Step title="Context load">
+    Larry reads the active venture context from `room/STATE.md` and any existing problem-definition entries. This grounds the reframing in what the room already knows rather than starting blank.
+  </Step>
+  <Step title="Pace check">
+    Larry asks: *Quick pass or deep dive?* A quick pass surfaces the three reframing questions and captures a revised problem statement in a single exchange. A deep dive is a slower walk — Larry challenges each answer before moving to the next phase.
+  </Step>
+  <Step title="Why phase">
+    Larry challenges the stated problem with Why questions: *Why is this the problem? Why does it matter to the people experiencing it? Why hasn't it been solved?* Each answer is probed for assumptions before moving on.
+  </Step>
+  <Step title="What-if phase">
+    Larry inverts key assumptions: *What if the constraint you named didn't exist? What if the opposite were true? What if the problem only looks this way from where you're standing?* This phase surfaces hidden assumptions that lock the framing in place.
+  </Step>
+  <Step title="How phase">
+    Once the reframed problem is visible, Larry opens the How: *Given what you've just named, how might you approach this differently?* The How is generative, not a prescription — it points toward methodology choices, not solutions.
+  </Step>
+  <Step title="Artifact creation and filing">
+    Larry composes a reframed problem statement artifact from the session. Before writing, Larry asks: *File this to problem-definition?* On confirmation, the artifact is filed to `room/problem-definition/beautiful-question/`.
+  </Step>
+  <Step title="Methodology chaining">
+    If the reframed question connects to another methodology (for example, the Why phase reveals an unknowns problem), Larry surfaces the connection: *The question you've crafted connects to [methodology]. Want to explore that next?*
+  </Step>
+</Steps>
+
+## Output / Artifacts
+
+The command produces a reframed problem statement document filed to the room's problem-definition section:
+
+```
+room/problem-definition/beautiful-question/<timestamp>.md
+```
+
+The artifact contains:
+- **Original problem statement** — the framing you brought in
+- **Why findings** — the assumptions and root drivers surfaced
+- **What-if inversions** — the assumptions that were flipped
+- **Reframed problem statement** — the new formulation to work from
+- **How pointers** — suggested next methodology moves
+
+<Tip>
+  The reframed problem statement becomes the anchor for downstream commands. `/mos:analyze-needs` and `/mos:jtbd` both read problem-definition entries to orient their analysis.
+</Tip>
+
+## Example
+
+```
+/mos:beautiful-question
+```
+
+Larry opens:
+
+> *Quick pass or deep dive?*
+
+You respond: *Deep dive — our pitch keeps landing flat and I don't know why.*
+
+Larry begins the Why walk:
+
+> *Why is a flat pitch the problem — and not, say, the underlying claim or the audience mismatch?*
+
+You work through three rounds of Why before arriving at: the pitch is flat because the problem framing is too abstract — it describes a category, not a felt pain. Larry moves to What-if:
+
+> *What if the problem isn't that customers don't understand the product — what if they understand it fine but don't believe they have the problem you're solving for them?*
+
+The reframed statement that files: **"Our real challenge is helping a specific type of buyer recognise they have the problem before we try to explain our solution to it."**
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:analyze-needs" href="/commands/analyze-needs">
+    Score the jobs behind the reframed problem by importance versus satisfaction.
+  </Card>
+  <Card title="/mos:map-unknowns" href="/commands/map-unknowns">
+    Plot the confident-but-thin assumptions the reframing surfaced in a Rumsfeld matrix.
+  </Card>
+  <Card title="/mos:jtbd" href="/commands/jtbd">
+    Identify the functional, emotional, and social jobs customers are hiring a solution to do.
+  </Card>
+  <Card title="/mos:bono" href="/commands/bono">
+    Run a six-hat governed research debate over the reframed question.
+  </Card>
+</CardGroup>

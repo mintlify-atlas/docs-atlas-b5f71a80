@@ -1,0 +1,90 @@
+---
+title: "/mos:snapshot — Save the Current Room State"
+sidebarTitle: "snapshot"
+description: "/mos:snapshot packages your room into a shareable HTML export — a three-door lobby and a full museum. Use it before pivots or at venture milestones."
+---
+
+`/mos:snapshot` packages your Data Room into a shareable, self-contained export. It generates two files in one command: a three-door lobby (`index.html`) that adapts to what your room actually contains, and a full museum (`hub.html`) with every artifact across every section in a single file. The lobby is what you show someone first; the museum is the complete reference.
+
+## Two Files, One Command
+
+| File | Purpose |
+|---|---|
+| `index.html` | The lobby — three doors picked adaptively from your room's content |
+| `hub.html` | The museum — every artifact across every section, inline, single file |
+
+The center door of the lobby always links to the full Data Room (`hub.html`). The two flanking doors are picked from whatever deliverables your room has — a Feynman deck, the opportunity bank, an investment thesis, deep-grade results, meeting intelligence, or the knowledge graph — ranked by what's most useful to a reader seeing the room for the first time.
+
+If your room has fewer than two detected deliverables, the lobby fills the remaining slots with starter invitation cards so the layout is never broken.
+
+## When to Use It
+
+<CardGroup cols={2}>
+  <Card title="Before a pivot" icon="rotate">
+    Capture the room state before you change direction so you have a reference for what you decided and why.
+  </Card>
+  <Card title="At a phase milestone" icon="flag">
+    Mark the end of discovery, validation, or design with a frozen artifact you can reference later.
+  </Card>
+  <Card title="Before sharing with co-founders" icon="users">
+    Package what you have into something readable outside the terminal before a strategy conversation.
+  </Card>
+  <Card title="For investors or mentors" icon="building">
+    Generate a portable HTML export that opens in any browser with no server needed.
+  </Card>
+</CardGroup>
+
+## Output Location
+
+Both files are written to `room/exports/`:
+
+```
+room/exports/
+├── index.html    # Lobby (3 doors, adaptive) — served as site root
+└── hub.html      # Museum (full content) — Door 2 destination
+```
+
+To deploy: copy the entire `exports/` folder to Vercel, Render, or any static host. Visitors land on the lobby by default.
+
+## Flags
+
+| Flag | What it does |
+|---|---|
+| `--output <path>` | Write `hub.html` to a custom path instead of `room/exports/hub.html` |
+| `--open` | Open the lobby in the default browser immediately after generation |
+
+## Usage
+
+```bash
+# Snapshot the current room
+/mos:snapshot
+
+# Snapshot and open in browser immediately
+/mos:snapshot --open
+
+# Snapshot a specific room by path
+/mos:snapshot ~/MindrianRooms/my-venture
+
+# Write the museum to a custom location
+/mos:snapshot --output ./synteris-hub.html
+```
+
+<Note>
+  If some sections are empty, the lobby handles it gracefully — starter invitation cards fill any remaining door slots. The snapshot will note which sections are empty, but it will never generate a broken layout.
+</Note>
+
+## Sharing Options
+
+Once generated, the export works entirely offline — no server, no npm, no external dependencies. Open it directly from the filesystem with `file://` or deploy it:
+
+```bash
+# Deploy to Vercel
+cd room/exports && npx vercel
+
+# Zip and send
+zip -r data-room.zip room/exports/
+```
+
+<Warning>
+  The exported HTML contains your full room content. Share only what you intend to share. MindrianOS does not host or access your data.
+</Warning>

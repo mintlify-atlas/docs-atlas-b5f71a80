@@ -1,0 +1,88 @@
+---
+title: "MindrianOS Privacy and Data Boundaries"
+sidebarTitle: "Privacy"
+description: "MindrianOS keeps your room data local and private. Understand exactly what stays on your machine, what goes to the Brain, and how the egress guard enforces the boundary."
+---
+
+MindrianOS reads your workspace and writes only to your rooms (`~/MindrianRooms/`) and to session state (`./.mindrian/`). That is the entire write surface. Your notes, decisions, meeting transcripts, opportunity cards, and room entries never leave your machine. The Brain is a shared teaching graph that makes Larry sharper — it holds methodology intelligence, not your data. The boundary between the two is enforced in code, not just policy.
+
+## What stays on your machine
+
+Everything you put into a room stays on your machine. MindrianOS does not transmit your venture data to any server, does not collect usage analytics, and does not have a telemetry pipeline for your content.
+
+| Data type | Where it lives | Leaves machine? |
+|---|---|---|
+| Room artifacts (decisions, opportunities, meetings, research) | `~/MindrianRooms/<room>/` | **No** |
+| Local knowledge graph (nodes and typed edges) | `room/.room-graph/room.db` (SQLite) | **No** |
+| Session state and binding | `./.mindrian/` | **No** |
+| Intent cache and hook side-files | `./.mindrian/` | **No** |
+| Persona overrides | `~/.mindrian/persona-override.json` | **No** |
+| Card-fire intercept diagnostic log | `~/.mindrian/card-fire-intercepts.log` | **No** |
+| Analytics / learning patterns | `room/.learnings.md` | **No** |
+| Framework names and problem-type enums in Brain queries | Brain API endpoint | **Yes — methodology only** |
+| Embedding model weights (one-time download by model ID) | Local cache | Model ID only egresses |
+
+---
+
+## What goes to the Brain
+
+The Brain is a Neo4j + Pinecone graph of methodology intelligence: frameworks, problem types, methodology chains, grading rubrics calibrated against hundreds of real ventures. When Larry queries the Brain, the query carries only generic methodology handles — framework names, problem-type enums, and Cypher patterns over node types that exist in the Brain's own schema. Your room content never appears in a Brain query.
+
+A typical Brain query looks like this: a Cypher pattern over framework nodes (`MATCH (f:Framework {name: 'Reverse Salient'}) RETURN f`), or a Pinecone vector search over framework embedding space using a sanitized methodology term. Neither query type has a slot for user-specific content.
+
+<Note>
+  Canon Part 8 — the binding rule from MindrianOS's own methodology constitution — states: "User data NEVER egresses to the Brain; it serves generic methodology only." This rule is enforced by the Brain egress guard hook (see below), not left to convention.
+</Note>
+
+---
+
+## The egress guard
+
+The egress guard is a PreToolUse hook registered on every `mcp__brain_.*` tool call. Before any Brain MCP tool executes, `part8-egress-guard-hook.cjs` inspects the call parameters and checks for user-specific bytes — room text, artifact prose, personal identifiers, notes, or any other user-derived content. If user content is found in the payload, the call is blocked. The call never reaches the Brain.
+
+This is a constitutional enforcement: a user-data byte in a Brain call is not a warning, it is a blocked call. The hook cannot be disabled by environment variable or configuration.
+
+The inbound complement is `brain-response-sanitize-hook.cjs`, a PostToolUse hook on `mcp__brain_.*` responses. After any Brain call completes, this hook scrubs the response for any reflected content before it lands in the context window. The Brain might theoretically reflect back a query term; the sanitize hook ensures that even reflected content is reviewed before reaching Larry's context.
+
+---
+
+## The local knowledge graph
+
+The local knowledge graph lives entirely in `room/.room-graph/room.db` — a SQLite database inside each room folder on your disk. This database stores all nodes (artifacts, claims, opportunities, entities), all typed edges (INFORMS, CONVERGES, CONTRADICTS, INVALIDATES, ENABLES, ROOT_CAUSES, DERIVED_FROM, and more), and all artifact metadata. The graph engine runs embedded — there is no graph server, no external database connection, and no sync process.
+
+A `.gitignore` pattern ships with MindrianOS that excludes `room.db` from commits by default. Your knowledge graph is yours, on your disk, and it does not go anywhere unless you choose to move it.
+
+---
+
+## Brain query anatomy
+
+When MindrianOS queries the Brain for methodology intelligence, the query is built from sanitized, generic handles only. Here is what a query looks like at the transport layer:
+
+- **Framework lookup**: a Cypher query carrying only the framework name (e.g., `"Reverse Salient"`, `"PEST Analysis"`) as a string literal matched against the Brain's own node names. No room content, no artifact text, no user prose.
+- **Semantic search**: a Pinecone vector search built from a framework-name or problem-type-enum embedding. The embedding input is the sanitized methodology term, never a room artifact.
+- **Chain resolution**: a graph traversal query over `FEEDS_INTO` and `PREREQUISITE` edges between framework nodes. The query carries only node type and edge type filters.
+
+The egress guard verifies this at call time. Any call that deviates from the sanitized pattern is blocked before it reaches the network.
+
+---
+
+## Zero telemetry
+
+MindrianOS does not phone home with usage data. There is no usage analytics server, no event stream, and no background reporting process. The only outbound network calls MindrianOS makes are:
+
+1. Brain API queries (methodology only, guarded by the egress hook)
+2. Web fetches for `/mos:research <url>` (the URL you explicitly provide, after you approve the ingest card)
+3. Academic and grants API calls for `/mos:research` and `/mos:opportunities` (the external domain allow-list in `settings.json`)
+4. The one-time model-weight download for the local embedding encoder (by model ID only, no room bytes)
+
+Every other MindrianOS operation — graph derivation, opportunity qualification, grading, meeting intelligence, the knowledge graph, decision tracking — runs entirely on local bytes.
+
+---
+
+## Local-first by default (MINDRIAN_MCP_FIRST)
+
+The `MINDRIAN_MCP_FIRST` environment variable controls whether certain session-start and stop-gate operations are routed through the MCP daemon or run locally. When the flag is unset (the default), all logic runs locally — no daemon, no network hop, byte-identical behavior to every prior version. Setting the flag to `'cli'` or `'all'` enables the Phase 198 MCP adapter path, which communicates with the resident daemon over a local socket.
+
+<Tip>
+  For maximum local operation, leave `MINDRIAN_MCP_FIRST` unset. The default keeps every hook and script running in-process on your machine with no daemon dependency.
+</Tip>

@@ -1,0 +1,204 @@
+---
+title: "/mos:pipeline — Compose and Run a Framework Chain"
+sidebarTitle: "pipeline"
+description: "/mos:pipeline composes a multi-step framework chain from Brain FEEDS_INTO traversal and runs the autonomous steps unattended, stopping at human-judgment gates."
+---
+
+When you want several methodologies chained instead of run one-by-one, `/mos:pipeline` executes a multi-step pipeline with the room as the connecting tissue. It Brain-derives the framework sequence, composes it into resolver-verified `/mos:` commands, and runs the autonomous steps unattended — stopping only where human judgment is genuinely required. The Week 7 pattern for serious venture work.
+
+## Usage
+
+```
+/mos:pipeline --from-problem-type <type>
+/mos:pipeline --from-framework "<framework name>"
+/mos:pipeline <named-pipeline>
+```
+
+**Problem type tokens** — pass any of:
+
+| Alias | Canonical token |
+|---|---|
+| `undefined` | `UDP` |
+| `ill-defined` | `IDP` |
+| `wicked` | `WDP` |
+| `well-defined` | (direct) |
+
+```
+/mos:pipeline --from-problem-type wicked
+/mos:pipeline --from-framework "Jobs to Be Done (JTBD)"
+```
+
+## Entry modes
+
+<CodeGroup>
+
+```text Brain-derived (recommended)
+# From problem type — Brain traverses FEEDS_INTO from the problem class
+/mos:pipeline --from-problem-type ill-defined
+
+# From a specific framework — picks up mid-chain
+/mos:pipeline --from-framework "Beautiful Question Framework"
+```
+
+```text Named pipeline
+# Loads pipelines/{name}/CHAIN.md directly
+/mos:pipeline discovery
+/mos:pipeline thesis
+```
+
+```text No arguments
+# Larry recommends based on venture stage and lets you choose
+/mos:pipeline
+```
+
+</CodeGroup>
+
+When no arguments are passed, Larry reads `room/STATE.md` and recommends:
+- **Discovery** pipeline for Pre-Opportunity or Discovery stage
+- **Thesis** pipeline for Design or Investment stage
+
+Larry presents both options and waits for your choice — no auto-selection.
+
+## What happens
+
+<Steps>
+  <Step title="Chain composition">
+    The helper script calls `recommendFrameworkChain` (a `FEEDS_INTO` traversal — framework names and problem-type enums only, never command strings or user content), then composes the result into `/mos:` commands via `composeWorkflow` reading only the local `data/command-registry.json`. The resolved run order is printed before execution begins.
+  </Step>
+  <Step title="Resume check">
+    Before Stage 1, `reconcileResume(roomDir)` reads `room/.mindrian/pipeline-state.json` — the sole chain-state source of truth. If a prior run exists, Larry offers: *"I see you've already completed Stage N of the [chain] pipeline. Want to continue from Stage N+1? Or start fresh?"*
+  </Step>
+  <Step title="Stage execution loop">
+    For each stage: read the stage contract, extract structured input from the previous stage's artifact, run the methodology command with that context pre-loaded, stamp the artifact with pipeline provenance metadata, then pause or continue per the autonomy gate.
+  </Step>
+  <Step title="Autonomy gate">
+    Steps marked `autonomous_safe: true` run unattended. Non-safe steps pause with a *"needs you here"* gate — Larry explains why human judgment is required at this point before proceeding.
+  </Step>
+  <Step title="Pipeline complete">
+    A summary of the full chain: what was produced at each stage, where each artifact was filed, and how each stage's output fed the next as structured input.
+  </Step>
+</Steps>
+
+## The autonomy gate
+
+<Note>
+  The autonomy gate is Canon Part 3's "human confirms" clause made literal. `/mos:act --chain` runs the `autonomous_safe` prefix unattended and stops at the first non-safe step. `/mos:pipeline` does the same inside its stage loop — every stop is a deliberate judgment checkpoint, not a limitation.
+</Note>
+
+```
+[PIPELINE] Stage 3 complete: JTBD → /mos:analyze-needs ✓
+
+Stage 4: Minto Pyramid → /mos:minto
+This step shapes the core investment thesis. Needs you here.
+
+Bring forward from Stage 3:
+  - 4 unmet jobs identified (IT integration, compliance overhead,
+    reporting lag, cross-system reconciliation)
+  - Primary persona: Operations Director
+
+Ready to run Stage 4? [yes] [exit pipeline]
+```
+
+## Command-less framework steps
+
+If a framework in the chain has no corresponding `/mos:` command, the resolver prints:
+
+```
+no /mos: for <framework> — run it manually; continuing
+```
+
+The pipeline skips that step (or you run the framework manually) and continues to the next resolved command. It never invents a command for an unregistered framework.
+
+## Standard chains
+
+These chains are defined in `docs/ARCHITECTURE-DEEP-DIVE.md` and available as named pipelines. Each arrow represents a `FEEDS_INTO` relationship where the left stage's output becomes the right stage's structured input.
+
+| Chain | Stages | Best for |
+|---|---|---|
+| **A — Problem-to-Thesis** | Domain Explorer → Bono → JTBD → Minto → DA → Investment | Well-defined problems ready for thesis framing |
+| **B — Discovery-to-Validation** | HSI → Domain Explorer → Validation → Minto | Testing early hypotheses against market signals |
+| **C — System Analysis** | Domain Explorer → Reverse Salient → JTBD → Bono → Minto | Wicked or ill-defined systemic problems |
+| **D — Full Venture** | Domain Explorer → HSI → Bono → JTBD → Scenario → Minto → DA → Investment | Complete venture build from landscape to thesis |
+
+### Pipeline chaining rules
+
+The structured handoffs between stages — what each stage's output becomes as the next stage's input:
+
+| From | Output | To | Becomes |
+|---|---|---|---|
+| Domain Explorer | Sub-domains | Bono | Hats (one per perspective) |
+| Domain Explorer | Sub-domains | JTBD | Personas (one per stakeholder) |
+| Bono | Hat insights | Minto | Evidence for the pyramid |
+| JTBD | Unmet jobs | Minto | SCQA complication |
+| JTBD | Unmet jobs | Devil's Advocate | Assumptions to test |
+| Minto | Thesis | Investment Thesis | Core thesis |
+| HSI | Bridges | Domain Explorer | New domains to map |
+| Reverse Salient | Bottlenecks | Minto | Complication framing |
+
+## Output / Artifacts
+
+Each stage creates its own artifact — the pipeline is additive, never destructive. Artifacts are stamped with pipeline provenance in their YAML frontmatter:
+
+```yaml
+pipeline: discovery
+pipeline_stage: 3
+pipeline_input: "4 unmet jobs from JTBD: IT integration, compliance overhead..."
+```
+
+The `pipeline` and `pipeline_stage` fields serve as the secondary confirming index for resume. The authoritative chain state lives in `room/.mindrian/pipeline-state.json`.
+
+```
+room/
+  problem-definition/
+    domain-explorer-YYYY-MM-DD.md     ← Stage 1 artifact
+    jtbd-YYYY-MM-DD.md                ← Stage 3 artifact
+  market-analysis/
+    minto-YYYY-MM-DD.md               ← Stage 4 artifact
+  .mindrian/
+    pipeline-state.json               ← chain state (sole source of truth)
+```
+
+<Tip>
+  Pipelines are suggested sequences, not mandatory paths. You can exit at any stage — Larry summarizes what was completed and reminds you that resume is available. No guilt-trip about incomplete pipelines.
+</Tip>
+
+## Example
+
+```
+/mos:pipeline --from-problem-type wicked
+```
+
+```
+[PIPELINE] Brain-derived chain for problem type: wicked
+
+Recommended chain (FEEDS_INTO traversal):
+  Stage 1: Domain Explorer      → /mos:explore-domains
+  Stage 2: Reverse Salient      → /mos:reverse-salient
+  Stage 3: JTBD                 → /mos:analyze-needs
+  Stage 4: Bono (Six Hats)      → /mos:six-hats
+  Stage 5: Minto Pyramid        → /mos:minto
+
+Autonomy map:
+  Stages 1-2: autonomous_safe ✓ (will run unattended)
+  Stage 3:    needs you here  ⚑
+  Stages 4-5: autonomous_safe ✓
+
+Start from Stage 1? [yes] [modify chain] [exit]
+```
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:suggest-next" href="/commands/suggest-next">
+    Get a ranked recommendation before committing to a full pipeline run.
+  </Card>
+  <Card title="/mos:grade" href="/commands/grade">
+    Score the room after the pipeline completes to measure what changed.
+  </Card>
+  <Card title="/mos:status" href="/commands/status">
+    Check which sections are populated and healthy before choosing a chain.
+  </Card>
+  <Card title="/mos:grade" href="/commands/grade">
+    Score room quality before or after running a pipeline chain.
+  </Card>
+</CardGroup>

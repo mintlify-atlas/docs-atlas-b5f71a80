@@ -1,0 +1,145 @@
+---
+title: "/mos:status — Session State and Room Health"
+sidebarTitle: "status"
+description: "/mos:status shows the current room's health, active JTBD, methodology stage, session token spend, and what needs attention — your session dashboard."
+---
+
+When you need a fast read on the room's current state, `/mos:status` shows the governing thought per section plus health glyphs. The 10-second status check — run it after filling a section, before grading, or any time you need a grounded sense of where the venture stands.
+
+## Usage
+
+```
+/mos:status
+/mos:status <section>
+/mos:status --stale-only
+```
+
+| Invocation | What it shows |
+|---|---|
+| `/mos:status` | Every section in the active room |
+| `/mos:status market-analysis` | One section's full governing thought, arguments, MECE check, artifacts, and identity |
+| `/mos:status --stale-only` | Only sections flagged stale (artifacts newer than the MINTO governing thought) |
+
+## What happens
+
+<Steps>
+  <Step title="Run the renderer">
+    Larry runs `scripts/mos-status.cjs` against the active room. The renderer reads each section's MINTO governing thought and `reasoning_health_score` from `lib/core/folder-memory.cjs` `readTriple`, with cache hits served through `lib/core/statusline-cache.cjs`. No Brain queries. No SIGNAL sweeps. Pure local room read.
+  </Step>
+  <Step title="Health glyph assignment">
+    Each section gets a Canon Part 2 health glyph based on the MINTO reasoning health score and whether a governing thought exists at all.
+  </Step>
+  <Step title="Render the Shape E report">
+    The renderer emits the full Body Shape E (Action Report): header, per-section rows, summary line, and next actions. Larry presents the output verbatim — no added commentary, no emoji.
+  </Step>
+  <Step title="F.1 next-move selector">
+    The report closes with a single recommended next action as an F.1 selector, based on what the room state reveals.
+  </Step>
+</Steps>
+
+## Room health glyphs
+
+| Glyph | Meaning | Condition |
+|---|---|---|
+| `check` | Healthy | Governing thought present, `reasoning_health_score` ≥ 0.7 |
+| `warn` | Needs attention | Present, but score between 0.4 and 0.7 |
+| `low` | Weak | Present, but score below 0.4 |
+| `--` | Empty or stale | No MINTO yet, or artifacts are newer than the governing thought |
+
+Stale sections carry a `(stale: reason)` suffix. Empty sections carry `(no MINTO yet)`. The renderer under-promises — it never fakes content.
+
+<Note>
+  What "room health" means in practice: section coverage (how many sections have a governing thought), evidence quality (the `reasoning_health_score` distribution), and whether any sections are stale. A healthy room has `check` on 4+ sections and no `low` sections going into a grade.
+</Note>
+
+## The statusline
+
+MindrianOS injects a persistent statusline segment into every session showing the current spend and cap. `/mos:status` surfaces the session token spend as part of its report, so you always know how much of your session budget has been used.
+
+## Example output
+
+Running `/mos:status` on a five-section room:
+
+```
+/mos:status — room: my-venture
+
+check  market-analysis:      "TAM of $12B is bottom-up defensible"
+warn   problem-definition:   "IT integration is the wedge"
+low    team-execution:        "Team of 3 with biotech + IT mix"
+--     business-model:        "Freemium plus seat-based" (stale: artifacts_newer_than_minto)
+--     competitive-analysis:  (no MINTO yet)
+
+5 sections, 4 filled, 1 stale, median reasoning health 0.55
+
+Next: /mos:reason competitive-analysis to build the governing thought
+Or:   talk to Larry about a specific section
+```
+
+## Session-aware view
+
+`/mos:status` shows section health as it stands now — a snapshot of what has been filed, whether pre-existing or added in this session. Use it:
+
+- **After a methodology run** to confirm the artifact was filed and the governing thought updated
+- **Before `/mos:grade`** to see which sections are weak before Larry scores them
+- **After a stale warning** to identify which sections need their MINTO regenerated with `/mos:reason <section>`
+
+## Example
+
+```
+/mos:status
+```
+
+```
+/mos:status — room: supply-chain-venture
+
+check  problem-definition:   "Manual reconciliation creates 3-day reporting lag"
+check  market-analysis:      "Mid-market logistics: $4.2B addressable, 14% CAGR"
+warn   solution-design:       "API-first middleware layer" (reasoning_health: 0.51)
+--     competitive-analysis:  (no MINTO yet)
+--     business-model:        (no MINTO yet)
+--     team-execution:        (no MINTO yet)
+
+6 sections, 2 check, 1 warn, 3 empty, median health 0.48
+Session: 4,200 tokens used
+
+Next: /mos:reason competitive-analysis
+```
+
+```
+/mos:status solution-design
+```
+
+```
+/mos:status — section: solution-design
+
+Governing thought: "API-first middleware layer"
+reasoning_health_score: 0.51  [warn]
+
+Arguments
+  - Middleware reduces integration cost vs. rip-and-replace
+  - REST/webhooks cover 80% of target stack
+  MECE check: NOT exhaustive — no argument for data-residency constraints
+
+Artifacts (3)
+  - solution-design/arch-sketch-2025-01-14.md  [pipeline: discovery, stage: 3]
+  - solution-design/api-spec-draft.md
+  - solution-design/integration-assumptions.md
+
+Stale: No
+
+Next: /mos:reason solution-design — add data-residency argument to strengthen health score
+```
+
+## Pairs well with
+
+<CardGroup cols={3}>
+  <Card title="/mos:grade" href="/commands/grade">
+    Score the room after checking health. Status tells you what's weak; grade tells you by how much.
+  </Card>
+  <Card title="/mos:suggest-next" href="/commands/suggest-next">
+    Turn the health picture into a ranked recommendation for what to fill next.
+  </Card>
+  <Card title="/mos:pipeline" href="/commands/pipeline">
+    Run a methodology chain to fill the empty sections status surfaces.
+  </Card>
+</CardGroup>

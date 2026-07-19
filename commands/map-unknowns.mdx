@@ -1,0 +1,97 @@
+---
+title: "/mos:map-unknowns — Hunt Your Confident Wrong Assumptions"
+sidebarTitle: "map-unknowns"
+description: "/mos:map-unknowns surfaces the claims you are most confident about and most likely wrong — the assumptions with high confidence but thin evidence in your room."
+---
+
+When you cannot tell what you do not know, `/mos:map-unknowns` plots known, unknown, and unknowable in a **Rumsfeld matrix**. The unknowable column is usually where the risk lives. The core insight this command is built on: the most dangerous assumptions in a venture are not the ones you know you are guessing — those you watch. The dangerous ones are the claims you are confident about, state as fact, and have never actually tested. Larry cross-references your room entries to find exactly those: high-confidence claims with thin evidence behind them. This command serves the `validate-idea` job and pairs naturally with any stage where you have accumulated beliefs about the market, the problem, or the solution.
+
+## Usage
+
+```
+/mos:map-unknowns
+```
+
+No arguments required. Larry reads the full room context from `room/STATE.md` and scans existing entries across all sections before opening. Works at any stage of a venture — the earlier you run it, the more time you have to address what it surfaces.
+
+<Note>
+  The unknowable quadrant is not a reason to stop. It is a reason to design experiments that reduce the blast radius of the things you cannot confirm before committing.
+</Note>
+
+## What happens
+
+<Steps>
+  <Step title="Context load">
+    Larry reads `room/STATE.md` and scans the full room — problem-definition, market-analysis, solution-design, and any other filed sections — to build a picture of what the room currently claims.
+  </Step>
+  <Step title="Pace check">
+    Larry asks: *Quick pass or deep dive?* Quick pass produces a ranked matrix in a single pass. Deep dive works one quadrant at a time — Larry never rushes this exercise, because it is a thinking exercise, not a checklist.
+  </Step>
+  <Step title="Known knowns quadrant">
+    Larry surfaces the claims the room states with high confidence and backs with solid evidence. These are the things you actually know. Larry challenges each one lightly — *what's the source? how recent is it?* — before marking it confirmed.
+  </Step>
+  <Step title="Known unknowns quadrant">
+    Larry surfaces the questions the room has explicitly flagged as open: things you know you don't know yet. These are already on your radar. Larry checks whether any have been informally answered in room entries without being formally closed.
+  </Step>
+  <Step title="Unknown unknowns quadrant">
+    This is the high-value quadrant. Larry cross-references room entries looking for claims stated with confidence — no hedging language, no source citation, no evidence tier marker — and checks whether the underlying evidence actually supports the confidence level. These are the assumptions you didn't know you were making.
+  </Step>
+  <Step title="Unknowable quadrant">
+    Larry identifies the claims that cannot be resolved with currently accessible evidence — things that depend on future market behaviour, regulatory change, or competitor decisions. For each, Larry notes the minimum viable signal that would reduce the uncertainty.
+  </Step>
+  <Step title="Prioritisation">
+    Larry ranks the unknown unknowns and unknowables by a confidence × evidence-gap score: the higher the confidence and the thinner the evidence, the higher the priority. This gives you an ordered list of the most dangerous beliefs to address first.
+  </Step>
+  <Step title="Artifact creation and filing">
+    Larry composes the unknowns matrix artifact. Before writing, Larry asks: *File this to problem-definition?* On confirmation, the artifact is filed to the room's unknowns path.
+  </Step>
+  <Step title="Methodology chaining">
+    If the matrix reveals a pattern — a cluster of unknowns in one domain, a core assumption that underlies many others — Larry names it: *Your matrix reveals [pattern]. Want to explore that with [methodology]?*
+  </Step>
+</Steps>
+
+## Output / Artifacts
+
+The command produces a Rumsfeld matrix document filed to the room:
+
+```
+room/**/unknowns/<timestamp>.md
+```
+
+The artifact contains:
+- **Known knowns** — confirmed claims with evidence
+- **Known unknowns** — open questions the room already tracks
+- **Unknown unknowns** — high-confidence claims with thin evidence, prioritised by confidence × evidence gap
+- **Unknowables** — claims that cannot be confirmed yet, with minimum viable signals for each
+- **Priority list** — the top assumptions to address, ordered by risk weight
+
+<Tip>
+  The unknown unknowns list from this command feeds directly into `/mos:bono` as debate axes — the highest-risk assumptions become the what-if hypotheses the six hats argue over.
+</Tip>
+
+## Example
+
+```
+/mos:map-unknowns
+```
+
+Larry scans the room and opens the matrix. In the unknown unknowns quadrant, Larry surfaces three claims from the market-analysis section stated with high confidence but no source: *"Enterprise buyers make procurement decisions in 60 days,"* *"The incumbent solution has a 70% churn rate,"* and *"Our target segment has a budget line for this category."* All three were asserted in session notes with no evidence citation.
+
+Larry ranks them: the procurement timeline assumption is the highest priority because it underlies the entire go-to-market motion. The others follow. Filed matrix includes a minimum viable signal for each unknowable: one customer discovery call would confirm or kill the procurement timeline claim.
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:bono" href="/commands/bono">
+    Run a six-hat governed research debate — the unknown unknowns become what-if hypotheses.
+  </Card>
+  <Card title="/mos:beautiful-question" href="/commands/beautiful-question">
+    Reframe before you map — surface the real problem before auditing your assumptions about it.
+  </Card>
+  <Card title="/mos:analyze-needs" href="/commands/analyze-needs">
+    Ground the unknowns in real customer jobs before deciding which to address first.
+  </Card>
+  <Card title="/mos:grade" href="/commands/grade">
+    Grade the room's evidence quality — pairs with the unknowns matrix to close the loop.
+  </Card>
+</CardGroup>

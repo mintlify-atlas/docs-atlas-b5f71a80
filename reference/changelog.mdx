@@ -1,0 +1,109 @@
+---
+title: "MindrianOS Changelog and Release History"
+sidebarTitle: "Changelog"
+description: "Release notes for MindrianOS — track new commands, Brain integrations, hook changes, and breaking updates across versions."
+---
+
+MindrianOS follows semantic versioning with a beta suffix during active development: `major.minor.patch-beta.N`. The current version is **1.15.3-beta.29**. Beta releases ship on a continuous basis as phases complete; stable releases (no suffix) mark the end of a development arc. The complete release history is on GitHub.
+
+<Note>
+  For the complete release history, see the [full changelog on GitHub](https://github.com/jsagir/mindrian-os-plugin/blob/main/CHANGELOG.md).
+</Note>
+
+---
+
+## v1.15.3-beta.28 — 2026-07-18
+
+This release resolves two long-standing causes of unusable portfolio-scan output, ships a warm-cache MCP path for the Eureka engine, and delivers the Phase 230 skill-fleet optimization harness for all 124 MindrianOS skills. Both Eureka seams were verified on two independently-chosen real rooms.
+
+### Added
+
+- **Eureka Seam 2 fix (statement-metadata gap).** Every entity-entity Opportunity Statement was rendering the literal placeholder "unknown x unknown approach to a unknown x unknown cross-domain bridge" instead of a real mechanism. The entity-node branch in `lib/core/eureka/room-native-substrate.cjs` now inherits `section` from its `DESCRIBES` edge to its source memory artifact, and `scripts/eureka-portfolio-report.cjs` uses relation-edge-typed bridge labels (`competes-with`/`uses-component`/`supplies-to`) instead of a generic phrase. Result: 22/25 → 0/25 "unknown x unknown" statements on both proving rooms.
+
+- **Eureka Seam 3 fix (candidate-generation gap).** Section container nodes — the room's own top-level folder nodes — were admitted as pairing candidates, flooding ranked-list slots with domain-same pairs. An additive either-endpoint `Section` exclusion at the generation layer now excludes these. 1,575 degenerate pairs (9.8% of the candidate set) excluded on `iia-deeptech-centers`; proven a true no-op on rooms with no Section nodes.
+
+- **Warm-cache MCP path for Eureka.** `eureka-run`, `eureka-status`, and `eureka-report` are now available on the `intelligence` MCP router tool. They call the same governed dispatcher (`scripts/eureka-command.cjs`) in-process instead of spawning a child process per call, so the embedding encoder cache stays warm across scans on the Phase 198 resident daemon. Measured: same-process call 2 is 0ms vs. call 1's 179ms.
+
+- **Phase 230: MindrianOS Skill Fleet Optimization harness.** A harness for testing whether all 124 skills trigger correctly and stay quiet when they should not. Two workstreams: WS1 (trigger accuracy across all 124 skills) and WS2 (code quality for the ~59 script/workflow-backed skills). Smoke-tested end to end on a 13-skill calibration set. **The full 124-skill fleet run is explicitly deferred behind a future opt-in — this release ships the harness only.**
+
+### Fixed
+
+- **`check-card-fire.cjs` no longer force-fires the Decision-Gate card on plain prose with no actual gate.** Two over-fire mechanisms retired: (1) the backstop's bare numbered-prose detector had a 7/7 false-positive rate on logged evidence and zero true catches; (2) the primary registry-gated path fired on `ran_entries` alone due to a session-key TTL bleed. Now requires a confirmed, non-empty gate-subject plus relevance. Verified against all 7 real logged firings (0/7 re-fire).
+
+- **Per-session room binding no longer re-prompts every turn after a real bind.** The MCP `room_bind` tool keyed binding state by the Claude session UUID; the CLI hook read it keyed by `process.env.CLAUDE_SESSION_ID` (unset in that context), silently falling back to a hash that never matched. The hook now reads the session ID from its own stdin payload.
+
+- **The reach/navigation dial no longer offers a topically-unrelated room.** A structural relevance gate (`lib/hmi/reach-relevance-gate.cjs`) now suppresses off-topic candidates by token overlap against the live turn before they are offered.
+
+---
+
+## v1.15.3-beta.26 — 2026-07-16
+
+### Added
+
+- **Phase 227: Ignite mode-select timing across turns 1–4 (SEED-060).** The session-start mode-selection Decision Gate (Just Talk / Explore+Capture / Build a Room) gets a structural, advisory-only backstop: a new `doctor.cjs` check class detects a silent skip and warns — it never blocks or re-fires the gate itself. `skills/larry-personality/SKILL.md` now names ignite for the first time and documents the gate's timing with Fogg B=MAP / TARI reasoning. Mode 3 (Build a Room) now routes through ignite's Directive/`--express` path instead of calling `/mos:new-project` directly.
+
+- **Phase 229: HUJI Pitch Feedback Module (in progress, 8/9 plans).** MindrianOS's batch pitch-feedback pipeline: turn each student's diarized 5-minute pitch transcript into one Minto-structured formative feedback artifact, batch-orchestrated across 200+ submissions at a $4–5/unit cost ceiling, local-only scoring (Brain read-only, generic handles per Canon Part 8). Ships the evidence/feedback schemas, test-inventory harness, deterministic code checks, PWS_grading recipe, Stage A intake adapter, LLM judge spawner, and batch orchestrator. **The mandatory demo run and human verdict checkpoint have not yet shipped.**
+
+---
+
+## v1.15.3-beta.20 — 2026-07-16
+
+This release window completed five phases that were under-documented at cut time.
+
+### Added
+
+- **Phase 222 (reach-ranking-unification).** The three surfaces that suggest a next move (`/mos:suggest-next`, the reach-candidates list, the auto-fire engine) now always agree on the top pick instead of occasionally diverging, and ranking improves over the room's own accept/reject history.
+
+- **Phase 223 (JTBD-driven intelligence pipeline).** `/mos:bono` is now an 8-phase governed research debate with Six-Thinking-Hats-style scrutiny (the Black hat must disconfirm first, the White hat must cite-or-retract) and three explicit navigator approval pauses. New `/mos:intel-pipeline` command runs a staged research pipeline oriented on the room's active JTBD (calibrate → decompose → fan out → compute → synthesize → close).
+
+- **Phase 224 (graph-derivation-harness, SEED-034).** Every markdown write to a room now enqueues and background-derives typed graph edges. No manual "derive" step is required.
+
+- **Phase 225 (per-session-room-binding, SEED-039).** Session-to-room binding now correctly supports multi-room binds.
+
+- **Phase 226 (eureka-reasoning-mode-fallback, SEED-058).** When the local embedding encoder is unavailable, `/mos:eureka` degrades to a labeled REASONING MODE result (a real short ranked list with an honest caveat naming the degrade cause) instead of a hard `pairs_scored: 0` dead end.
+
+- **Eureka entity extraction two-tier WHAT-vs-WHY classifier.** A free, fully local embedding pass now resolves the confident majority of candidates at zero API spend. The existing LLM classifier is demoted to an escalation-only path for ambiguous residuals. Measured on a real room: 61.1% of candidates resolve locally and correctly, 14.3% fewer LLM calls. Tunable via `MINDRIAN_WHATWHY_MARGIN` (default `0.10`).
+
+### Fixed
+
+- Eureka ranked top-25 no longer refills with scaffold pairs when real entities are thin. Scaffold-vs-scaffold pairs are excluded from the candidate set by construction; the exclusion count is reported in provenance.
+- Eureka entity-extraction pre-step no longer fails silently — failures now surface as an `extraction_error` field in `eureka status.json` plus a stderr line.
+
+---
+
+## v1.15.3-beta.16 — 2026-07-13
+
+### Added
+
+- **Opportunity follow-through lifecycle.** Every opportunity flows through the Harvest Formula (candidate → qualified → explored → promoted | parked | retired) as a real graph node with append-only stage history.
+- **Eureka statements bank as proposed opportunity nodes.** Statements the Grounding Guard passes bank as `opportunity` nodes with `DERIVED_FROM` evidence edges. Tunable via `MINDRIAN_OPPORTUNITY_BANK_PREDICATE` (`critic` | `critic+tail` | `all`).
+- **Harvest sensor (SENS-14).** A producer on the insight-sensor rail harvests candidates from five lanes (eureka proposals, bridges, contradictions, whitespace, meeting filings), classifies each through the Gibson Four-Lens, and scores them with HarvestIndex_v1.
+- **Qualification Decision Gate (`/mos:qualify-opportunity`).** Five verbs: Qualify+file, Park, Retire, Explore, Skip. Nothing qualifies without your explicit verb.
+- **`/mos:explore-opportunity`.** One explicit action turns a qualified opportunity into deep research — a Minto-shaped opportunity artifact filed into `opportunity-bank/` plus a research corpus artifact in `research/`, with typed evidence edges.
+- **Web ingestion agent.** Paste a URL or run `/mos:research <url>` — after you approve at the card, the page is fetched, filed as a cited research artifact in `research/`, and its entities land in the room graph. Nothing is fetched or filed without your explicit verb.
+- **Pasted-URL sensor (SENS-15).** A bare URL in your turn offers an ingest card contextually. Never auto-files.
+- **Content-hash idempotency + SUPERSEDES versioning.** Re-ingesting an unchanged page is an honest no-op; a changed page files a new version linked to the prior one.
+
+---
+
+## v1.15.0 — 2026-07-02
+
+The v1.15.0 stable release completed the Shape-F Declaration Mandate, the HITL selector infrastructure, and the Phase 210 persona-enforcement calibration.
+
+### Changed
+
+- **Phase 210: Revert persona-enforcement over-reach.** Five phases in the v1.15 window turned voice/gate judgment calls into hard-fail mechanical checks. Each was softened to advisory or relevance-gated behavior while underlying capabilities stayed intact: shape-declaration gate is advisory (exits 0, still detects and enumerates violations); voice-glyph mapping is a default, not a lock; APO voice-contract scores rather than vetoes; elevation quorum suggests rather than forces; force-fire is relevance-gated. **The Phase 194 session-room-binding gate, Phase 196 Brain-egress PreToolUse guard, and Phase 200 semantic-floor gate are byte-untouched.**
+
+### Added
+
+- **Phase 190: Shape-F Declaration Mandate (Canon v1.23, Part 11 R16).** Every invocable surface now has a declared HITL shape, enforced at commit, release, and `doctor --acceptance`.
+- **Phase 192: HITL Selector Completion + Posture Dial + live statusline.** Menu live-selectors across suggest-next/rooms/onboard, the F7max dial preview and modifier pane, new `/mos:stance` 4-pole posture dial, and a statusline that updates per turn.
+- **Phase 203: Synthetic-Expert-as-Skill** with a two-surface Plurai construction + behavioral fidelity gate.
+- **Phase 204: Ignite Room-Chooser + persona-differentiated entry**, the first consumer of the Shape-F selector front door.
+- **Phase 187.2: CLAUDE.md de-bloat.** Fully-expanded per-session load reduced from ~66k tokens to ~3,899 tokens (under the 4k gate), proven durable via idempotent regeneration.
+
+---
+
+## Versioning
+
+MindrianOS uses semantic versioning (`major.minor.patch`) with a `-beta.N` suffix during active development. Beta suffixes increment with each phase that ships; they do not indicate instability — beta releases are production-ready. The beta suffix drops when the development arc closes into a stable release (e.g., `1.15.0`, `1.14.0`, `1.13.1`).

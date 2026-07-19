@@ -1,0 +1,125 @@
+---
+title: "/mos:research — Web Research as Typed Graph Evidence"
+sidebarTitle: "research"
+description: "/mos:research pulls fresh evidence from the web, extracts room context first, cross-references findings with the Brain, and wires accepted findings as typed EvidenceClaim nodes."
+---
+
+When you need fresh evidence from the web cross-referenced with the Brain methodology graph, `/mos:research` runs a dual-source pull — public signal plus calibrated framework. It extracts your room context first, surfaces each finding with a candidate filing location and a decision card, then wires accepted findings as typed graph data other commands can consume. With Brain connected, every finding is semantically cross-referenced against 12,485 methodology vectors. Without Brain (Tier 0), research still runs and files typed evidence — the web-only path works fully.
+
+## Usage
+
+```text
+/mos:research [topic | url]
+/mos:research --broad [topic]
+```
+
+| Argument | Description |
+|---|---|
+| `topic` | A natural-language question or keyword string (e.g. `"competitive landscape for B2B SaaS invoicing"`) |
+| `url` | A bare `http(s)://` URL — routes to the URL ingest pipeline |
+| `--broad` | Overrides the computed lens set with a fixed three-lens preset: `scholarly`, `industry`, `patent` — all at equal weight |
+
+<Note>
+  If you run `/mos:research` with no argument, Larry will ask: "What do you want me to research? Give me a specific question or topic related to your venture."
+</Note>
+
+## What Happens
+
+<Steps>
+  <Step title="Room context extraction">
+    Larry reads your room — the active section, current JTBD, persona role, and any existing evidence gaps tagged `needs_evidence`. This becomes a conversational context summary surfaced before any fetch: "Speaking to your investor lens, you are in the build-thesis workflow… I will research this topic against THIS context."
+  </Step>
+  <Step title="Lens set computation">
+    From the context summary, Larry computes an ordered, weighted lens set — the sources to query (e.g. scholarly, industry, patent, Brain). The lens names are surfaced so you can see which sources will run. With `--broad`, this is overridden by the fixed three-lens preset.
+  </Step>
+  <Step title="Execution via source-lens driver">
+    The driver queries each lens cache-first (30-day TTL). On a miss it fetches live, writes back to cache, and deduplicates against prior research. Results are ranked by evidence tier and relevance. Up to the top 5 findings are returned.
+  </Step>
+  <Step title="Findings presented in venture context">
+    Each finding is shown with: title, one-line summary, source URL, retrieval timestamp, evidence tier, and a pre-mapped candidate room section with a match score against that section's existing claim graph. Raw search results are never dumped.
+  </Step>
+  <Step title="Filing decision per finding (F.1 gate)">
+    For each finding, Larry renders a filing selector with five options: file to the primary section (recommended when confidence clears 0.7), file to a secondary section, split across both, defer to milestone audit, or reject with a captured reason. Nothing files without your explicit verb.
+  </Step>
+  <Step title="Wiring accepted findings to the graph">
+    Approved findings are written as `EvidenceClaim` nodes with `review_status: proposed`. Typed edges are added: `INFORMS` to the target section, `CONTRADICTS` when a finding conflicts with an existing claim, `SUPERSEDES` when it replaces a weaker-tier source. Rejected findings are wired with a `REJECTED_BECAUSE` edge — rejection is data, not a dead end.
+  </Step>
+  <Step title="Next-move surface or chain return">
+    If you ran research standalone, Larry surfaces an F.1 next-move selector naming the methodologies that can now consume the wired claims. If research was dispatched by another command (e.g. `/mos:build-thesis`), it returns only the accepted `EvidenceClaim` node IDs so the caller resumes with exactly the evidence it needed.
+  </Step>
+</Steps>
+
+## Output / Artifacts
+
+<CardGroup cols={2}>
+  <Card title="EvidenceClaim nodes" icon="circle-nodes">
+    Each approved finding becomes a typed `EvidenceClaim` node in your room's SQLite graph at `room/.room-graph/room.db`, with provenance: URL, `retrieved_at` timestamp, and evidence tier.
+  </Card>
+  <Card title="Typed edges" icon="arrow-right-arrow-left">
+    `INFORMS`, `CONTRADICTS`, `SUPERSEDES`, and `REJECTED_BECAUSE` cascade edges are written to the local graph — never to the Brain. These edges are queryable via `/mos:graph`.
+  </Card>
+  <Card title="Research artifact" icon="file-lines">
+    Filed findings land as cited artifacts under `room/**/research/`, matching the section the F.1 gate resolved.
+  </Card>
+  <Card title="Memory events" icon="clock-rotate-left">
+    A `research_filed` or `research_rejected` memory event is written per finding, carrying URL, retrieval time, and evidence tier for future deduplication.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Because `/mos:research` declares `emits_evidence_claims: true` in its frontmatter, other commands that declare `requires_evidence:` can auto-dispatch it when room evidence is thin. Larry proposes the dispatch — you decide whether to run it.
+</Tip>
+
+## Brain Behavior
+
+| Mode | What changes |
+|---|---|
+| **With Brain (Tier 1)** | The `brain` lens is included in the lens set, semantically cross-referencing findings against 12,485 methodology vectors. Connections between findings and methodology are surfaced. |
+| **Without Brain (Tier 0)** | The `brain` lens is skipped with a typed `skipped` provider status. All other lenses run normally. Research still files typed evidence — nothing is blocked. |
+
+<Warning>
+  Zero local room data ever reaches the Brain. The only Brain touch in this command is a read-only generic methodology query. All graph writes land in your local `room/.room-graph/room.db` via `navigation.cjs`.
+</Warning>
+
+## Recovery Modes
+
+When an engine breaks mid-run, the run does not dead-end and does not lie. The `research_mode` field on every result tells you exactly what kind of run occurred:
+
+| `research_mode` | Meaning |
+|---|---|
+| `normal` | Every engine worked. Nothing to disclose. |
+| `web_degraded_local_fallback` | A live web leg failed; cached or local data covered the gap. The outage stays visible in `providers`. |
+| `local_only` | The run was deliberately offline — your choice, not a failure. |
+| `insufficient_evidence` | Zero items anywhere. A cold corpus is a typed verdict, never a silent success with empty arrays. |
+| `llm_engine_recovery` | An engine broke and a bounded, fenced LLM recovery did the work; everything it did is disclosed. |
+| `manual_intervention_required` | The run needs you — the message names the exact missing thing (a credential, or a Claude spend cap). |
+
+## Examples
+
+```text
+# Research a URL — surfaces a readback gate (Ingest / Ingest+Explore / Skip) before fetching
+/mos:research https://example.com/market-report
+
+# Research a topic — context-aware, files findings as typed EvidenceClaim nodes
+/mos:research "competitive landscape for B2B SaaS invoicing"
+
+# Broad preset — scholarly + industry + patent lenses at equal weight
+/mos:research --broad "network effects in two-sided marketplaces"
+```
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:graph" href="/commands/graph">
+    Query the typed evidence nodes and edges wired by research using natural language.
+  </Card>
+  <Card title="/mos:find-connections" href="/commands/find-connections">
+    Use Brain semantic search to surface cross-domain patterns connected to your filed evidence.
+  </Card>
+  <Card title="/mos:opportunities" href="/commands/opportunities">
+    Scan for funding opportunities informed by the room context research builds.
+  </Card>
+  <Card title="/mos:qualify-opportunity" href="/commands/qualify-opportunity">
+    Qualify a surfaced opportunity at a structured decision card after research surfaces candidates.
+  </Card>
+</CardGroup>

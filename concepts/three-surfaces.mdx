@@ -1,0 +1,106 @@
+---
+title: "Three Surfaces: CLI, Desktop, and Cowork"
+sidebarTitle: "Three Surfaces"
+description: "MindrianOS runs on Claude Code CLI, Claude Desktop, and Cowork. The same Larry, the same room, and the same commands work across all three surfaces."
+---
+
+MindrianOS runs wherever Claude runs. The same Larry. The same room. The same commands. What changes across surfaces is the interaction pattern — not the methodology, not the teaching, not the data. This is the Tri-Polar Design Rule: every feature must work on all three surfaces before it ships. A feature that only works on one surface is incomplete.
+
+## The three surfaces at a glance
+
+| Surface | What it gives you |
+|---------|------------------|
+| **Claude Code CLI** | Full power. Hooks fire, scripts run, the room is on disk, Larry teaches with visible structure. |
+| **Claude Desktop** | Same Larry, conversational. The Data Room shows up as inline panels (dashboard, wiki, knowledge graph). |
+| **Cowork** | Same plugin, shared room. Daily briefings, persistent perspectives, multi-user. |
+
+## Claude Code CLI
+
+The CLI is the full-power surface. Every hook fires, every script runs, and the room lives on disk where you can see it, version it, and back it up.
+
+<CardGroup cols={2}>
+  <Card title="Hooks fire" icon="bolt">
+    Session-start hooks load room context and run the mode-selection gate. Session-end and session-stop hooks capture the conversation transcript and write it into the room graph.
+  </Card>
+  <Card title="Scripts run" icon="terminal">
+    Bash scripts in `scripts/` handle room analysis, meeting intelligence, PDF export, and transcript ingestion. These run as real shell processes with full disk access.
+  </Card>
+  <Card title="Room on disk" icon="folder">
+    The room folder at `~/MindrianRooms/` is a real directory you can open in your file manager, grep through, or commit to git.
+  </Card>
+  <Card title="Visible structure" icon="table-columns">
+    The De Stijl color marks, Shape F selector cards, and the statusline cockpit (context budget, active JTBD, room health) all render in the terminal.
+  </Card>
+</CardGroup>
+
+The CLI gives you the complete command surface — all 111 commands across 124 skills and 9 agents. You do not need to remember them. Larry reaches for them when they help. They are documented for when you already know the shortcut.
+
+```bash
+/mos:ignite               # the front door: start or excavate a room
+/mos:discover             # Larry-led client + product + JTBD discovery
+/mos:beautiful-question   # reframe the problem before solving it
+/mos:file-meeting         # paste a transcript, Larry files it
+/mos:graph "question"     # ask a question against the local knowledge graph
+/mos:wiki                 # open the room as a browsable wiki
+```
+
+## Claude Desktop
+
+Claude Desktop gives you the same Larry in a conversational interface — no terminal required. It is the right surface for collaborators who are not technical, or for sessions where you want to think without seeing the underlying structure.
+
+The Data Room appears as inline panels inside the conversation. You do not leave the chat window.
+
+<CardGroup cols={3}>
+  <Card title="Dashboard" icon="gauge">
+    A Mondrian-grid overview of room health, section coverage, and recent activity — rendered inline.
+  </Card>
+  <Card title="Wiki" icon="book-open">
+    The full room as a three-panel browsable wiki. Section navigation on the left, content in the center, connections on the right.
+  </Card>
+  <Card title="Knowledge graph" icon="diagram-project">
+    An interactive Cytoscape.js graph of the room's nodes and edges — rendered inline inside the Desktop conversation.
+  </Card>
+</CardGroup>
+
+The six movements of `/mos:discover`, the birth gates of `/mos:ignite`, and the methodology chains all run on Desktop as natural conversation. Larry degrades gracefully: wherever a CLI surface would fire an arrow-key selector card, Desktop presents the same choices in prose form — same options, same decision gate, different rendering.
+
+<Note>
+  Every Desktop behavior is described in the command doctrines as a "Tri-Polar degradation." No feature is Desktop-only. No feature fails on Desktop. The degradation path is documented alongside the full-power path.
+</Note>
+
+## Cowork
+
+Cowork is the multi-user surface. The same plugin, the same room structure, the same Larry — shared across a team.
+
+<CardGroup cols={2}>
+  <Card title="Shared room" icon="users">
+    The room lives in shared `00_Context/` state. Every team member sees the same sections, the same entries, and the same intelligence cascade.
+  </Card>
+  <Card title="Daily briefings" icon="newspaper">
+    Scheduled tasks generate daily briefings from the room state — what changed, what contradicts, what opportunities surfaced.
+  </Card>
+  <Card title="Persistent perspectives" icon="user-gear">
+    Agent perspectives persist across sessions. A team member who filed a meeting yesterday does not have to re-explain the context today.
+  </Card>
+  <Card title="Concurrent access" icon="arrows-split-up-and-left">
+    Multiple users can work the room simultaneously. Shared context propagates; the room graph reconciles concurrent entries through the same typed-edge intelligence that runs in single-user mode.
+  </Card>
+</CardGroup>
+
+## The Tri-Polar Design Rule
+
+Every feature in MindrianOS is evaluated through all three surfaces before it ships. The checklist is explicit:
+
+- **CLI**: hooks fire, scripts run, `/mos:*` commands execute, context budget and file output work.
+- **Desktop**: Larry's personality holds, natural-language discoverability works, the user can do the same task without knowing a command name.
+- **Cowork**: shared room state is consistent, concurrent access is safe, the daily briefing and persistent perspectives work.
+
+A feature that only works on one surface is incomplete. There is no surface-specific code for methodology, teaching, or room intelligence.
+
+## Which surface to start with
+
+<Tip>
+  Start with the CLI for full power. Add Desktop for collaborators who are not comfortable with a terminal. Upgrade to Cowork when multiple people need to work the same room.
+</Tip>
+
+The CLI gives you hooks, scripts, and the full command surface. If you have never used a terminal, the install guide at [mindrian-os.com/docs/install](https://mindrian-os.com/docs/install) is written for you. The first session requires no commands at all — just talking to Larry.

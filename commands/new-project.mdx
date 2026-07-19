@@ -1,0 +1,75 @@
+---
+title: "/mos:new-project — Scaffold a New Data Room"
+sidebarTitle: "new-project"
+description: "/mos:new-project creates the Data Room folder structure, initializes the SQLite graph, and registers the room. Usually invoked by /mos:ignite."
+---
+
+`/mos:new-project` is the scaffold backend for room creation. It creates the folder structure, initializes the SQLite knowledge graph, registers the room in the global registry, and seeds initial entries from anything you shared in the conversation. In most cases you will not invoke this directly — `/mos:ignite` calls it for you after the B2 blueprint approval gate. Direct invocation still works, and the full conversation-to-room flow is preserved either way.
+
+<Note>
+  `/mos:ignite` is the recommended front door. It adds the persona-pick gate (B1), the blueprint approval gate (B2), and the first-win gate (B3) on top of what `/mos:new-project` does alone. Use `/mos:new-project` directly when you need the scaffold backend without the birth conversation.
+</Note>
+
+## What Gets Created
+
+A new room is created at `~/MindrianRooms/<slug>/` with eight standard sections aligned to due-diligence stages:
+
+```
+~/MindrianRooms/<slug>/
+  problem-definition/
+  market-analysis/
+  solution-design/
+  business-model/
+  competitive-analysis/
+  team-execution/
+  legal-ip/
+  financial-model/
+  team/
+  assets/
+  .intelligence/
+  .snapshots/
+  USER.md
+  STATE.md
+```
+
+Each section gets a `ROOM.md` that carries the section's purpose, venture-stage relevance, and starter questions tailored to what you shared in the conversation. Sections where no content was discussed are created empty — no placeholder entries are invented.
+
+## The SQLite Knowledge Graph
+
+The room's knowledge graph is initialized at `room/.room-graph/room.db`. This is the local mind that powers contradiction detection, cross-section connection finding, and evidence tiering. Every claim you make and every decision you record lands here as a typed edge.
+
+## Room Registration
+
+After the folder is created, the room is registered in the global registry at `~/MindrianRooms/.rooms/registry.json`. The new room is set as the active room automatically, and the previous active room is parked.
+
+## Fast Paths
+
+Two flags skip the exploration conversation and jump directly to the blueprint gate:
+
+| Flag | What it does |
+|---|---|
+| `--express` | Use current session context as blueprint input |
+| `--from-brief <sha8>` | Read an MVA brief from a prior session and use it as blueprint input |
+
+Both flags preserve the B2 blueprint approval gate — nothing is created until you approve the blueprint.
+
+## Usage
+
+```bash
+# Start a new room with a guided conversation
+/mos:new-project
+```
+
+```bash
+# Name the room directly
+/mos:new-project my-startup-idea
+```
+
+```bash
+# Skip the conversation, use current context
+/mos:new-project --express
+```
+
+<Note>
+  If you already have rooms in `~/MindrianRooms/`, the command will tell you how many exist and create the new one alongside them. Rooms never collide.
+</Note>

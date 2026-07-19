@@ -1,0 +1,144 @@
+---
+title: "/mos:grade — Score Problem-Discovery Quality"
+sidebarTitle: "grade"
+description: "/mos:grade scores your room on six problem-discovery components in under a minute. The lightweight grade; use /mos:deep-grade for full calibrated assessment from 100+ projects."
+---
+
+When you want a fast read on problem-discovery quality, `/mos:grade` scores the room on six components in under a minute. The lightweight cousin of `/mos:deep-grade` — it runs without Brain and delivers Larry's honest assessment of where your venture thinking stands right now.
+
+## Usage
+
+```
+/mos:grade
+```
+
+Add `--full` to dispatch eight parallel grading agents — one per room section — for a comprehensive venture-wide assessment with cross-section coherence scoring.
+
+```
+/mos:grade --full
+```
+
+<Note>
+  `autonomous_safe: true` — this command runs without human-confirmation gates. Larry reads the room, scores it, and returns the result in one pass.
+</Note>
+
+## What happens
+
+<Steps>
+  <Step title="Calibration distribution preview">
+    Before scoring, Larry shows a preview of the real grade distribution from 100+ past projects. Grades are not absolute — they're relative to that distribution. You see where the calibration anchor sits before you see your score.
+  </Step>
+  <Step title="Room state analysis">
+    Larry reads every populated section in the room silently — `room/STATE.md` plus all section artifacts. The entire venture is graded, not just one section.
+  </Step>
+  <Step title="Six-component scoring">
+    Each component is scored 1–10, then weighted into a final grade. The scoring table is always shown — no exceptions.
+  </Step>
+  <Step title="Reality check">
+    Every claim in the room is classified as **Validated**, **Assumed**, or **Fantasy**.
+  </Step>
+  <Step title="Grade computation">
+    The weighted formula is applied and a letter grade with numeric score is produced.
+  </Step>
+  <Step title="Top 3 Actions">
+    Specific next steps to improve the score, tied to the weakest component and the `/mos:` command that addresses it.
+  </Step>
+</Steps>
+
+## The six grading components
+
+These are the Brain Grading Engine's static rubric weights, used when Brain MCP is not connected.
+
+| Component | Weight | What it measures |
+|---|---|---|
+| Technical Feasibility | 25% | Can this actually be built or executed? |
+| Logical Argument | 25% | Does the reasoning hold together without leaps? |
+| Tool Usage | 25% | Were the right methodologies applied to the right problems? |
+| Cognitive Bias | 12.5% | Has the thinking been stress-tested against confirmation bias? |
+| QA | 12.5% | Are claims sourced, consistent, and internally coherent? |
+
+<Tip>
+  A low **Tool Usage** score (below 3/10) is the most common trigger for a Brain-recommended follow-up. If your score is low here, Larry will suggest the specific methodology that addresses it — typically Bono (De Bono Hats) or JTBD.
+</Tip>
+
+## Brain mode vs. standard mode
+
+| Aspect | `/mos:grade` (no Brain) | `/mos:grade` (Brain connected) |
+|---|---|---|
+| Calibration data | None — static rubric | Real distribution from 100+ projects |
+| Scoring model | 6-component static | Delegates to the Grading Agent |
+| Percentile ranking | No | Yes |
+| Assessment engine | Larry directly | Grading Agent → Larry wraps results |
+
+When Brain MCP is active, Larry delegates to the Grading Agent which calls `brain_grade_calibrate` against the live project corpus and returns a percentile ranking alongside the component scores. Larry then wraps those results with teaching context and next steps.
+
+## Top feedback patterns
+
+The Brain Grading Engine surfaces recurring patterns across real projects. If you see these in your feedback, they point to structural gaps rather than surface-level issues:
+
+- **Vision-to-Execution Gap** — strong hypothesis, no path to the first customer conversation
+- **Framework Vomit** — many methodologies applied but outputs not connected to each other
+- **Solution-First** — jumped to building before validating the problem worth solving
+- **Single-Tool** — relied on one methodology instead of a chained approach
+
+## Output / Artifacts
+
+After scoring, Larry asks: *"File this to problem-definition?"*
+
+If confirmed, the grade artifact is written to `room/**/grades/` with full provenance metadata including component scores, the reality-check classifications, and the top-3 actions.
+
+```
+room/
+  problem-definition/
+    grades/
+      grade-YYYY-MM-DD.md   ← component scores, formula, top-3 actions
+```
+
+## Example
+
+```
+/mos:grade
+```
+
+Larry reads all populated sections, shows the calibration distribution preview, then delivers the six-component scoring table:
+
+```
+[GRADE] Room: my-venture
+
+Calibration anchor: median project scores 61/100 (C+)
+Top decile: 84+ | Bottom decile: 43-
+
+Component Scores
+─────────────────────────────────────────────────
+Technical Feasibility   7/10  (25%)  →  17.5 pts
+Logical Argument        6/10  (25%)  →  15.0 pts
+Tool Usage              3/10  (25%)  →   7.5 pts
+Cognitive Bias          5/10 (12.5%) →   6.25 pts
+QA                      6/10 (12.5%) →   7.5 pts
+─────────────────────────────────────────────────
+Total: 53.75 / 100   →  D+
+
+Weakest component: Tool Usage (3/10)
+
+Top 3 Actions
+1. Run /mos:analyze-needs — only one methodology applied; chain it with JTBD to get real personas from your sub-domains.
+2. Stress-test the market assumption — classified as Assumed, not Validated.
+3. Add a Minto pyramid to tighten the logical argument structure.
+```
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:suggest-next" href="/commands/suggest-next">
+    Brain-calibrated assessment against 100+ real projects with percentile ranking. Requires Brain MCP.
+  </Card>
+  <Card title="/mos:suggest-next" href="/commands/suggest-next">
+    Get Larry's ranked recommendations for what to work on after seeing your grade.
+  </Card>
+  <Card title="/mos:status" href="/commands/status">
+    Fast room health check — section coverage, health glyphs, and governing thoughts at a glance.
+  </Card>
+  <Card title="/mos:pipeline" href="/commands/pipeline">
+    Run a multi-step methodology chain to systematically address the gaps your grade reveals.
+  </Card>
+</CardGroup>

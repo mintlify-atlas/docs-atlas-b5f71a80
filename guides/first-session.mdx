@@ -1,0 +1,129 @@
+---
+title: "Run Your First MindrianOS Session with Larry"
+sidebarTitle: "First Session"
+description: "A step-by-step walkthrough of starting a room, talking through a problem with Larry, and understanding how the Data Room builds itself from your conversation."
+---
+
+MindrianOS doesn't ask you to learn an interface — it asks you to talk. After install, restart Claude Code and start a new session. Larry is already listening. Whatever you describe, he reads the intent, routes you to the right method, and files what you learn into a structured room on your machine. This walkthrough takes you from a blank session to a populated room with a scored opportunity banked.
+
+<Note>
+Larry routes you. If you're ever unsure what command to run, just describe what you want to do in plain English — Larry classifies your intent and reaches for the right command on your behalf. You don't need to memorize a single `/mos:` shortcut to use the system.
+</Note>
+
+## Two ways in
+
+Before the step-by-step, understand the two entry paths. Both lead to the same place.
+
+<CardGroup cols={2}>
+  <Card title="Just Talk" icon="comments">
+    Start with a sentence: "I'm exploring an idea about X." Larry asks reframing questions, routes you through discovery, and the room builds underneath the conversation.
+  </Card>
+  <Card title="/mos:ignite" icon="bolt">
+    The explicit front door. Walks you through three birth gates — starting point, blueprint approval, and first win — and creates the room folder with a locked-in opportunity.
+  </Card>
+</CardGroup>
+
+## Session walkthrough
+
+<Steps>
+  <Step title="Start a session and talk naturally">
+    Open Claude Code after install and start a new conversation. You don't need to type any command. Just describe what you're working on:
+
+    > "I'm exploring an idea about reducing hospital readmission rates for elderly patients."
+
+    Larry will ask reframing questions designed to find the real problem before you try to solve it. He may ask what you actually know versus what you're assuming, who experiences the problem most acutely, or what's already been tried. Answer in your own words. The conversation is the work.
+  </Step>
+
+  <Step title="Or use /mos:ignite for a structured front door">
+    If you prefer an explicit starting point, type `/mos:ignite`. This triggers the three birth gates:
+
+    **Gate B1 — Starting Point**
+
+    Larry asks where you're arriving from. An interactive card surfaces with six persona options (Researcher, Student, Founder/Business, Operator, Investor, Domain Expert), plus paths for pasting a CV or stating a falsifiable hypothesis. Pick the one that matches how you're arriving. Your answer determines how the room gets organized and how Larry talks with you for the rest of the session.
+
+    **Gate B2 — Blueprint Approval**
+
+    Larry shows you the room structure it's about to create — which sections will be built, how they map to your venture stage, and where your first insights will file. Nothing is created until you approve. Review the blueprint, adjust if needed, then approve to create the room.
+
+    **Gate B3 — First Win**
+
+    The room now exists on disk. Larry surfaces the first set of next-move options ranked by what makes sense for your starting point. This is your first bankable opportunity — the thing worth pursuing first. Pick one to lock it in as the room's initial direction.
+  </Step>
+
+  <Step title="Find your room folder">
+    After the ignite flow (or after Larry creates a room from conversation), your room is on disk at:
+
+    ```bash
+    ~/MindrianRooms/<your-project-name>/
+    ```
+
+    Open it in any file manager. It contains sections organized by venture stage: problem definition, market analysis, solution, team, financials, IP, meetings, and opportunity bank. You own the folder. Back it up like any other directory.
+  </Step>
+
+  <Step title="Continue the conversation — Larry routes from here">
+    Keep talking. Larry classifies every message you send and routes you to the right next step. Depending on what you describe, he may surface:
+
+    - `/mos:beautiful-question` — if you're circling a problem that needs reframing before you try to solve it
+    - `/mos:discover` — if you're ready to run structured client, product, and jobs-to-be-done discovery
+    - `/mos:analyze-needs` — if you want to understand who has this problem, how badly, and what they've already tried
+    - `/mos:bono` — if you want a six-perspectives research-and-debate team on your question
+
+    You don't have to know these commands exist. Describe what you're doing; Larry reaches for them.
+  </Step>
+
+  <Step title="File a meeting transcript">
+    After a customer call, team discussion, or research interview, paste the transcript and run:
+
+    ```bash
+    /mos:file-meeting
+    ```
+
+    Larry reads the transcript, extracts what matters — insights, assumptions, decisions, open questions — and files each piece to the correct room section with provenance. You never organize notes by hand.
+  </Step>
+
+  <Step title="Check what the room knows">
+    To see a summary of what's been filed so far — which sections are populated, what the room's current focus is, and what's still missing:
+
+    ```bash
+    /mos:status
+    ```
+
+    Larry gives you an honest read of where the room stands, what it found, and what gaps still need attention.
+  </Step>
+
+  <Step title="Grade your problem discovery">
+    When you want an honest assessment of your problem-discovery quality compared to real ventures:
+
+    ```bash
+    /mos:grade
+    ```
+
+    Larry scores your room against the same rubric used across 100+ real projects: technical feasibility, logical argument, tool usage, cognitive bias, and QA. You'll see where you're strong, where confidence is outrunning evidence, and what the most common failure patterns look like at your stage.
+  </Step>
+</Steps>
+
+## What you don't need to do
+
+You don't need to memorize commands. You don't need to know framework names. You don't need to plan out a session before you start. The conversation is the interface — everything else is wiring underneath it.
+
+The room compounds over time. Every new entry is compared against everything already filed. Contradictions surface. Cross-session connections appear. The assumption you recorded in week two shows up again when you're making a decision in week eight that depends on it. The more you put in, the more useful the room becomes.
+
+<Accordion title="Quick reference: commands Larry might reach for">
+
+| Command | What it does |
+|---------|--------------|
+| `/mos:ignite` | Front door: start or resume a room through three birth gates |
+| `/mos:discover` | Larry-led client, product, and JTBD discovery |
+| `/mos:beautiful-question` | Reframe the problem before solving it |
+| `/mos:analyze-needs` | Who has this problem, how badly, what they've tried |
+| `/mos:bono` | Six-hats research-and-debate team on your question |
+| `/mos:map-unknowns` | Find the claims you're most confident about — and wrong |
+| `/mos:file-meeting` | Paste a transcript; Larry files it |
+| `/mos:research <url>` | Paste a link; approve the card; the page becomes cited room knowledge |
+| `/mos:opportunities` | What grants match this room right now |
+| `/mos:grade` | Honest assessment against real ventures |
+| `/mos:status` | What the room currently knows |
+
+Larry routes you to these. The table is a reference, not a workflow.
+
+</Accordion>

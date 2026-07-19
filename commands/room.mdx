@@ -1,0 +1,101 @@
+---
+title: "/mos:room — View and Manage the Current Room"
+sidebarTitle: "room"
+description: "/mos:room shows the active Data Room's sections, filing status, and health signals. Use it to inspect what's been filed and what's still missing."
+---
+
+`/mos:room` is how you look inside the active Data Room without leaving the terminal. The default view renders a semantic tree of all sections — which are populated, which are empty, and what the health signals say — followed by a next-move action footer. You can also drill into a specific section for a wiki-style card view that includes graph relationships and the governing thought for that section.
+
+## The Overview View
+
+Running `/mos:room` with no arguments produces the semantic tree overview:
+
+```
+-- Acme Robotics -- ~/MindrianRooms/acme-robotics/ -- Pre-Opportunity --
+
+  ▼ room/
+  ├─ ▼ problem-definition/          3 entries
+  │  ├─ ✓ domain-exploration.md     2026-03-20
+  │  ├─ • trend-analysis.md         2026-03-21
+  │  └─ • assumption-map.md         2026-03-22
+  ├─ ▶ market-analysis/             1 entry
+  ├─ ▷ solution-design/             empty
+  ├─ ▶ business-model/              2 entries
+  ├─ ▷ competitive-analysis/        empty
+  ├─ ▶ team-execution/              2 entries
+  ├─ ▷ legal-ip/                    empty
+  └─ ▷ financial-model/             empty
+
+  5 sections with content, 3 empty.
+```
+
+Symbols at a glance: `▼` expanded (has content shown), `▶` collapsed with content, `▷` empty. Entry status: `✓` complete artifact, `•` draft.
+
+If there are active intelligence signals — contradictions, gaps, convergences — up to three appear in a strip below the tree. If there are no signals, the strip is omitted.
+
+## Section Card View
+
+Passing a section name drills into that section for a wiki-style card:
+
+```
+-- Acme Robotics -- problem-definition -- Pre-Opportunity --
+
+  Governing Thought:
+  "IT integration is the real wedge, not the hardware."
+
+  Entries (3):
+  ├─ ✓ domain-exploration.md     2026-03-20  deep
+  ├─ • trend-analysis.md         2026-03-21  quick
+  └─ • assumption-map.md         2026-03-22  deep
+
+  Graph:
+  ├─ INFORMS  market-analysis (2 edges)
+  ├─ CONTRADICTS  financial-model (1 edge)
+  └─ CONVERGES  solution-design (1 edge)
+```
+
+If the section has no entries yet, Larry shows the starter questions from `ROOM.md` so you have somewhere to begin.
+
+## Subcommands
+
+| Subcommand | What it does |
+|---|---|
+| `/mos:room` | Overview — semantic tree of all sections |
+| `/mos:room <section>` | Section card — governing thought, entries, graph edges |
+| `/mos:room add <name>` | Add a new section to the room |
+| `/mos:room view` | Launch the live browser dashboard |
+| `/mos:room linkify` | Inject wikilinks and branded footers in place |
+| `/mos:room export` | Generate a standalone HTML export |
+
+## Usage
+
+```bash
+# Overview of the active room
+/mos:room
+
+# Drill into a section
+/mos:room problem-definition
+
+# Add a custom section
+/mos:room add partnerships
+
+# Launch the live dashboard in a browser
+/mos:room view
+```
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:ignite" href="/commands/ignite">
+    The front door for starting or excavating a room.
+  </Card>
+  <Card title="/mos:status" href="/commands/status">
+    Section-by-section health with governing thoughts and health glyphs.
+  </Card>
+  <Card title="/mos:snapshot" href="/commands/snapshot">
+    Package a shareable point-in-time export of the room.
+  </Card>
+  <Card title="/mos:graph" href="/commands/graph">
+    Query the room knowledge graph for connections and contradictions.
+  </Card>
+</CardGroup>

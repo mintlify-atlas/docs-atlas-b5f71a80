@@ -1,0 +1,74 @@
+---
+title: "/mos:ignite — Start or Excavate a Room"
+sidebarTitle: "ignite"
+description: "/mos:ignite is the front door for room creation. Three birth gates — starting point, blueprint approve, first win — initialize the Data Room."
+---
+
+`/mos:ignite` is the canonical front door for starting a new room or returning to an existing one. It walks you through three birth gates — starting point, blueprint approval, and first win — and delegates the room scaffold to `/mos:new-project` behind the scenes. You never need to touch the scaffold directly; ignite handles everything.
+
+<Tip>
+  Use `/mos:ignite` rather than `/mos:new-project` directly. Ignite gives you the full first-cycle experience: persona pick, blueprint approval, and a bankable first opportunity before you leave the gate.
+</Tip>
+
+## The Room Chooser (Gate B0)
+
+Before any birth gate fires, ignite checks whether you already have rooms. If prior rooms exist, Larry presents a room chooser so you can resume an existing room instead of starting a new one. If no rooms exist, the chooser is skipped and you go straight into the birth flow.
+
+Three actions are available from the chooser:
+
+- **Resume** a prior room — switches the active room and greets you back in context
+- **Just talk** — hands off to conversation mode without creating a room
+- **Start a new room** — proceeds to Gate B1 below
+
+## The Three Birth Gates
+
+<Steps>
+  <Step title="B1 — Starting Point">
+    Larry asks who you are arriving as and what you are arriving with. You pick from a persona card (researcher, student, founder, operator, investor, domain expert), paste a CV, state a hypothesis, or describe your start in your own words. This is a single-pick interactive card — arrow keys to navigate, enter to confirm.
+
+    If an MVA brief is pending from a previous conversation, the brief renders as a reward before B1 fires.
+  </Step>
+  <Step title="B2 — Blueprint Approval">
+    Larry presents the room blueprint for your approval before anything is created: the room name, slug, section set, venture stage, initial JTBD, and a nugget routing table showing where each extracted claim will be filed. Nothing is written to disk until you approve.
+
+    You can approve, adjust with a reason (Larry revises and re-renders), or defer (the scratchpad saves your progress).
+  </Step>
+  <Step title="B3 — First Win">
+    After the room is born, Larry surfaces your first move. A ranked slate of methodology options is presented based on what you shared. Picking one locks in the first bankable opportunity and loads the next trigger.
+
+    B3 only fires after the room is successfully created. If blueprint approval fails, B3 does not render.
+  </Step>
+</Steps>
+
+## Flags
+
+| Flag | What it does |
+|---|---|
+| `--express` | Skip the starting-point conversation and jump to blueprint approval using current session context |
+| `--from-brief <sha8>` | Start from an existing MVA brief; the brief content pre-fills the blueprint |
+| `--from-opportunity <ref>` | Start from a banked opportunity; the opportunity context determines the blueprint |
+
+## After Ignite
+
+Once B3 completes, the room lives at `~/MindrianRooms/<slug>/` with its SQLite knowledge graph initialized at `room/.room-graph/room.db`. All future Larry commands work against that room until you switch or create another.
+
+## Usage
+
+```bash
+# The standard front door
+/mos:ignite
+```
+
+```bash
+# Skip the conversation, use current context
+/mos:ignite --express
+```
+
+```bash
+# Start from a brief generated in a prior session
+/mos:ignite --from-brief a3f9c1d2
+```
+
+<Note>
+  `/mos:new-project` still works as a direct invocation and is the scaffold backend ignite calls internally. But for the full guided experience — persona pick, blueprint gate, first win — always start with `/mos:ignite`.
+</Note>

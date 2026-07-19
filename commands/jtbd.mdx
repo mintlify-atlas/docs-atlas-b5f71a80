@@ -1,0 +1,208 @@
+---
+title: "/mos:jtbd — Jobs to Be Done Framework Analysis"
+sidebarTitle: "jtbd"
+description: "/mos:jtbd runs the Jobs to Be Done framework — Larry identifies the functional, emotional, and social jobs customers are hiring your solution to do."
+---
+
+When you need to see or set the active job-to-be-done for this room, `/mos:jtbd` shows the **per-room signal** that tells Larry what kind of work you are doing right now. The JTBD state is not just a label — it is the routing signal every subsequent `/mos:` command reads to orient itself. A `validate-idea` job sharpens Bono's grid toward the risky assumption; a `find-problem` job opens up the Beautiful Question walk. The heuristic classifier updates the JTBD signal silently per turn, but `/mos:jtbd` lets you inspect what Larry believes the job is, override it when the classifier mis-routed, and audit the full transition history. Most users never need this command directly. When you do, it is usually because Larry is reasoning from the wrong job.
+
+## Usage
+
+```bash
+/mos:jtbd [set <jtbd> | clear | list | history] [--json]
+```
+
+<CodeGroup>
+```bash Show current JTBD
+/mos:jtbd
+```
+
+```bash List all 13 jobs
+/mos:jtbd list
+```
+
+```bash Manual override
+/mos:jtbd set find-problem
+```
+
+```bash Open picker
+/mos:jtbd set
+```
+
+```bash Clear to null
+/mos:jtbd clear
+```
+
+```bash Full transition history
+/mos:jtbd history
+```
+
+```bash Machine-readable output
+/mos:jtbd --json
+/mos:jtbd history --json
+```
+</CodeGroup>
+
+## What happens
+
+<Steps>
+  <Step title="Intent parsing">
+    Larry inspects the invocation and branches: no args shows current state, `list` shows all 13 taxonomy entries, `history` shows the last 20 transitions, `set <jtbd>` performs a validated manual override, `set` with no arg renders a Shape F.1 picker, and `clear` returns the state to null.
+  </Step>
+  <Step title="Script execution">
+    Larry executes the command via Bash:
+    ```bash
+    node "${CLAUDE_PLUGIN_ROOT}/scripts/jtbd-command.cjs" $ARGUMENTS
+    ```
+    The script resolves the active room from `~/MindrianRooms/.rooms/registry.json`, loads `<roomDir>/.mindrian/jtbd-state.json`, and loads `lib/hmi/jtbd-taxonomy.json` for taxonomy lookups.
+  </Step>
+  <Step title="Output rendering">
+    The script outputs a Shape E (Action Report). Larry displays the script's stdout directly — no re-formatting, no stripped ANSI codes. Zone 4 of the report surfaces three grounded follow-up commands tuned to the active job.
+  </Step>
+</Steps>
+
+## The 13 JTBD taxonomy entries
+
+The full taxonomy lives in `lib/hmi/jtbd-taxonomy.json`. All 13 entries:
+
+| ID | Description |
+|----|-------------|
+| `decide-pursue` | Decide if a venture / opportunity / approach is worth pursuing |
+| `find-problem` | Find the problem worth solving — not the symptom, the root |
+| `understand-market` | Understand the market for this idea — size, structure, dynamics |
+| `find-bottleneck` | Find the lagging component (Hughes 1983 reverse salient) blocking progress |
+| `prepare-pitch` | Prepare for an investor / partner / customer meeting |
+| `validate-idea` | Test if an idea / hypothesis / claim holds up under scrutiny |
+| `compare-options` | Compare alternatives across criteria — choose between A/B/C |
+| `connect-domains` | Find cross-domain analogues — what does this look like in another field? |
+| `surface-contradiction` | Notice and resolve internal contradictions in the room |
+| `plan-execution` | Plan the next 90 days — milestones, owners, dates |
+| `file-meeting` | Capture and route meeting intelligence into the room |
+| `audit-room` | Audit Data Room health — gaps, drift, evidence tier, decision quality |
+| `explore` | No specific job — general thinking, talking, ranging (fallback) |
+
+## Subcommands
+
+### Default — show current state
+
+```
+/mos:jtbd
+```
+
+Renders Shape E with the current JTBD, confidence score, evidence chain, and last 5 history entries.
+
+**Example output:**
+```
+-- mindrianos -- jtbd -- find-bottleneck --
+
+  ■ Current               find-bottleneck
+     entered  2026-05-01T10:42:00Z (3m ago)
+     confidence  0.82
+     evidence  tokens:rs-fetch, operator:METHODOLOGY, recency:rs-thesis
+     expires  manual override active until 2026-05-02T10:42:00Z
+
+  ■ Last 5 history
+     ├─ explore           2026-05-01T10:30:00Z  trigger=session_start
+     ├─ explore           2026-05-01T10:35:00Z  trigger=user_message
+     └─ find-bottleneck   2026-05-01T10:42:00Z  trigger=manual_set
+
+  Summary: total transitions=3, history_used=3/50
+
+  ▶ /mos:act                  # run methodology for active job
+  ▷ /mos:jtbd set             # manual override (F.1 picker)
+  ▷ /mos:jtbd history         # full transition history
+```
+
+### `list` — browse all 13 jobs
+
+```
+/mos:jtbd list
+```
+
+Renders Shape E with all 13 taxonomy entries — each with its one-line description. Use this to find the right ID before running `set`.
+
+### `set <jtbd>` — manual override
+
+```
+/mos:jtbd set find-problem
+```
+
+Validates `<jtbd>` against the taxonomy. On success, writes the state with `trigger=manual_set` and a 24-hour `expires_at` window. On failure (unknown JTBD), prints a 3-line error to stderr and exits 1.
+
+### `set` — open Shape F.1 picker
+
+```
+/mos:jtbd set
+```
+
+Renders a Shape F.1 Next Move selector listing all 12 first-class jobs plus `Free-Text`. When you type a natural language selection (*"set to find-bottleneck"*), Larry interprets and re-invokes with the explicit ID.
+
+### `clear` — return to null
+
+```
+/mos:jtbd clear
+```
+
+Clears the current JTBD to null. Writes a history row with `trigger=manual_clear`. The heuristic classifier may re-populate the state on the next user turn.
+
+### `history` — full transition log
+
+```
+/mos:jtbd history
+```
+
+Renders Shape E with the last 20 transitions in chronological-recent-first order. Each row shows `from → to`, trigger type, and timestamp.
+
+## Pipeline position
+
+In the PWS methodology chain, the JTBD signal flows in two directions:
+
+```
+Domain Explorer sub-domains → /mos:jtbd (stakeholders per sub-domain)
+/mos:bono hat insights      → /mos:jtbd (context per persona)
+/mos:jtbd unmet jobs        → /mos:structure-argument (SCQA complication)
+/mos:jtbd unmet jobs        → Devils Advocate (assumptions to test)
+```
+
+The active JTBD also orients every other command's behaviour — it is the first thing Larry reads before rendering any methodology surface.
+
+<Note>
+  The JTBD state file is per-room, never global: `<roomDir>/.mindrian/jtbd-state.json`. Manual overrides are sticky for 24 hours. The classifier runs silently on every turn and may update the state between your sessions.
+</Note>
+
+## Example
+
+```
+/mos:jtbd list
+```
+
+You scan the taxonomy and pick `validate-idea`. Then:
+
+```
+/mos:jtbd set validate-idea
+```
+
+Larry confirms: *You're on `validate-idea`. Manual override active for 24 hours.* Subsequent commands — including `/mos:bono`, which reads the active JTBD to sharpen its research grid toward risky assumptions — now orient to the validation job.
+
+```
+/mos:jtbd
+```
+
+Shows the current state, confidence score, and the evidence chain the classifier used — useful for debugging when a command behaved unexpectedly.
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:analyze-needs" href="/commands/analyze-needs">
+    Score customer jobs by importance versus satisfaction — the needs analysis counterpart to the JTBD signal.
+  </Card>
+  <Card title="/mos:bono" href="/commands/bono">
+    The active JTBD orients Bono's research grid — run after setting the right job.
+  </Card>
+  <Card title="/mos:beautiful-question" href="/commands/beautiful-question">
+    Reframe the problem before the JTBD signal routes subsequent commands.
+  </Card>
+  <Card title="/mos:map-unknowns" href="/commands/map-unknowns">
+    Map confident-but-thin assumptions — pairs with validate-idea JTBD to scope the debate grid.
+  </Card>
+</CardGroup>

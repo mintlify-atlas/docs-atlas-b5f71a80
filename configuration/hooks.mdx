@@ -1,0 +1,132 @@
+---
+title: "MindrianOS Lifecycle Hooks Reference"
+sidebarTitle: "Hooks"
+description: "MindrianOS ships 9 Claude Code lifecycle hooks — SessionStart, PreCompact, PostCompact, Stop, SessionEnd, PreToolUse, PostToolUse, UserPromptSubmit, FileChanged, CwdChanged, SubagentStop, TaskCompleted."
+---
+
+MindrianOS registers a set of Claude Code lifecycle hooks in `hooks/hooks.json`. These hooks fire automatically during normal Claude Code operation — you do not configure them, and you do not call them. They are the internal machinery that keeps room context alive across compacts, enforces write boundaries, drains background queues, and ensures your session state is always consistent. This page documents what each hook event does so you can understand what is happening during a session.
+
+<Note>
+  Hooks fire automatically. This page is a reference, not a configuration guide. The write-scope check and Brain egress guard are constitutional hooks — they enforce hard boundaries that cannot be disabled by configuration.
+</Note>
+
+---
+
+## Hook events overview
+
+| Hook Event | Script(s) | What it does |
+|---|---|---|
+| **SessionStart** | `sessionstart-npm-reconcile.cjs`, `sessionstart-post-update-preflight.cjs`, `run-hook.cmd session-start`, `sessionstart-coordinator.cjs`, `sessionstart-reference-now-seed.cjs`, `check-pending-breakthrough.cjs`, `check-pending-ambiguous.cjs`, `gsd-graph-derive-drain.cjs`, `agentshield-sessionstart-scan.cjs` | Reconcile deps, post-update preflight, load room context, seed reference clock, scan for breakthroughs and ambiguous segments, drain graph-derivation queue, security scan |
+| **PreCompact** | `run-hook.cmd pre-compact` | Save room context before Claude's context compact |
+| **PostCompact** | `run-hook.cmd post-compact` | Restore room context after compact completes |
+| **Stop** | `run-hook.cmd on-stop`, `operator-update.cjs`, `jtbd-update.cjs stop`, `hmi-compliance-poll.cjs`, `gsd-graph-derive-sweep.cjs`, `check-card-fire.cjs` | Operator update, JTBD update, HMI compliance poll, graph-derive sweep, stop-gate check |
+| **SessionEnd** | `session-end-presence.cjs` | Session-end presence tracking |
+| **PreToolUse** (Write/Edit/MultiEdit) | `run-hook.cmd write-scope-check` | Write scope enforcement — blocks writes outside workspace and rooms |
+| **PreToolUse** (mcp__brain_.*) | `part8-egress-guard-hook.cjs` | Brain egress guard — enforces that user data never leaves in Brain calls |
+| **PostToolUse** (Write/Edit/MultiEdit) | `run-hook.cmd post-write`, `frontmatter-schema-validator.cjs`, `async-artifact-auto-commit.cjs`, `memory-completion-detector.cjs`, `auto-explore-fingerprint.cjs`, `gsd-artifact-graph-hook.cjs`, `memory-artifact-graph-hook.cjs` | Room filing, frontmatter validation, auto-commit, memory completion detection, fingerprinting, artifact graph hooks |
+| **PostToolUse** (Read/Grep/Glob) | `query-efficiency-telemetry.cjs` | Query efficiency telemetry (local only) |
+| **PostToolUse** (broad tool set) | `operator-update.cjs` | Operator state update after any significant tool use |
+| **PostToolUse** (mcp__brain_.*) | `brain-response-sanitize-hook.cjs` | Scrubs any reflected content from Brain responses before it reaches context |
+| **PostToolUse** (SlashCommand) | `telemetry-command-invocation.cjs` | Local command invocation telemetry |
+| **UserPromptSubmit** | `admin-command-gate.cjs`, `run-hook.cmd intent-classifier`, `mva-detect.cjs`, `brain-derivation-drain.cjs`, `operator-update.cjs`, `jtbd-update.cjs userprompt`, `auto-explore-drain.cjs` | Admin command gate, intent classification, MVA detection, brain derivation drain, JTBD update, auto-explore drain |
+| **FileChanged** | `run-hook.cmd on-file-changed` | On-file-changed handler for external edits |
+| **CwdChanged** | `run-hook.cmd on-cwd-changed` | Room context switch when the working directory changes |
+| **SubagentStop** | `run-hook.cmd on-agent-complete` | Process agent output when a subagent completes |
+| **TaskCompleted** | `run-hook.cmd on-task-complete` | Update pipeline progress when a task completes |
+
+---
+
+## Hook events in detail
+
+<Accordion title="SessionStart — reconcile, load, and secure">
+  SessionStart fires on every session open, clear, and compact. It runs nine scripts in sequence:
+
+  1. **Dep reconcile** (`sessionstart-npm-reconcile.cjs`) — checks that all plugin dependencies are present and at the right versions. Runs synchronously with a 120-second timeout; if a dep is missing it self-heals before the session opens.
+  2. **Post-update preflight** (`sessionstart-post-update-preflight.cjs`) — verifies that a recent plugin update activated correctly.
+  3. **Room context load** (`run-hook.cmd session-start`) — loads the active room's context into the session.
+  4. **Session coordinator** (`sessionstart-coordinator.cjs`) — wires up the room-state binding and status-read signals. Under `MINDRIAN_MCP_FIRST=cli`, this dispatches through the MCP daemon adapter instead of running locally.
+  5. **Reference clock seed** (`sessionstart-reference-now-seed.cjs`) — writes a canonical "now" timestamp so all hooks and scripts share the same time reference for the session.
+  6. **Breakthrough scan** (`check-pending-breakthrough.cjs`) — checks for any filed breakthroughs awaiting review.
+  7. **Ambiguous segment scan** (`check-pending-ambiguous.cjs`) — checks for any ambiguous segments that need classification.
+  8. **Graph-derivation drain** (`gsd-graph-derive-drain.cjs`) — processes any typed edge derivations that were queued from the previous session.
+  9. **Security scan** (`agentshield-sessionstart-scan.cjs`) — scans plugin surfaces for security drift and unexpected modifications.
+</Accordion>
+
+<Accordion title="PreCompact / PostCompact — survive context compression">
+  When Claude Code compresses its context window, MindrianOS saves your room state first and restores it immediately after.
+
+  - **PreCompact** calls `run-hook.cmd pre-compact` (2-second timeout). It serializes the active room context — current focus, recent decisions, session binding — to a side file before the context is compressed.
+  - **PostCompact** calls `run-hook.cmd post-compact` (3-second timeout). It reads that side file and reinjects the room context into the fresh context window so Larry resumes with full room awareness.
+
+  These two hooks together ensure that a context compact is invisible to you: the conversation continues as if nothing happened.
+</Accordion>
+
+<Accordion title="Stop — close out the session">
+  Stop fires every time Larry finishes a response. Six scripts run in order:
+
+  1. **Stop gate** (`run-hook.cmd on-stop`) — checks the stop-gate condition. Under `MINDRIAN_MCP_FIRST=all`, this dispatches to the daemon-backed stop-gate handler.
+  2. **Operator update** (`operator-update.cjs`) — persists the current operator state.
+  3. **JTBD update** (`jtbd-update.cjs stop`) — updates the Jobs-To-Be-Done model for the session.
+  4. **HMI compliance poll** (`hmi-compliance-poll.cjs`) — checks that the navigator-facing outputs met the interaction contract.
+  5. **Graph-derive sweep** (`gsd-graph-derive-sweep.cjs`) — runs a sweep of any pending graph edge derivations from the turn.
+  6. **Card-fire check** (`check-card-fire.cjs`) — the SEED-021 backstop that detects when a Decision Gate was reached but the AskUserQuestion card was not fired, and blocks the response until it is.
+</Accordion>
+
+<Accordion title="SessionEnd — presence tracking">
+  SessionEnd fires when the session closes. `session-end-presence.cjs` records session-end presence data locally — this is part of the memory-lifecycle and folder-memory close-out. All data stays on disk.
+</Accordion>
+
+<Accordion title="PreToolUse — the write-scope check and Brain egress guard">
+  Two PreToolUse hooks enforce hard boundaries:
+
+  **Write-scope check** fires on every `Write`, `Edit`, and `MultiEdit` tool call. It runs `run-hook.cmd write-scope-check`, which verifies that the target path is inside your workspace or `~/MindrianRooms/`. A write to any path outside these boundaries is blocked before it executes. This is a constitutional hook — it cannot be disabled.
+
+  **Brain egress guard** fires on every `mcp__brain_.*` tool call (any call to a Brain MCP tool). It runs `part8-egress-guard-hook.cjs`, which enforces Canon Part 8: user-specific bytes in a Brain call is a constitutional breach. The guard inspects the call parameters and blocks the call if it detects user content — notes, room text, artifact prose, or any other user-specific data — in the payload. Brain calls may carry only framework names, problem-type enums, and generic methodology handles.
+</Accordion>
+
+<Accordion title="PostToolUse — file, validate, and index">
+  PostToolUse fires after tool calls complete. Several matchers are registered:
+
+  **After Write/Edit/MultiEdit** (seven scripts run in parallel):
+  - `run-hook.cmd post-write` — files the written artifact into the room structure.
+  - `frontmatter-schema-validator.cjs` — validates that the written file's frontmatter matches the schema for its artifact type. Advisory violations are logged; schema-blocking violations surface as warnings.
+  - `async-artifact-auto-commit.cjs` — commits the artifact to the room's local record asynchronously.
+  - `memory-completion-detector.cjs` — checks whether a memory artifact is complete and ready for graph indexing.
+  - `auto-explore-fingerprint.cjs` — fingerprints the artifact for the auto-explore sensor.
+  - `gsd-artifact-graph-hook.cjs` — wires the artifact into the GSD (Get Stuff Done) task graph.
+  - `memory-artifact-graph-hook.cjs` — derives typed edges between the new artifact and existing room content.
+
+  **After Read/Grep/Glob:**
+  - `query-efficiency-telemetry.cjs` — records local query efficiency metrics. Local disk only, never transmitted.
+
+  **After any significant tool call** (Write, Edit, MultiEdit, Read, Grep, Glob, AskUserQuestion, Bash, Task, TodoWrite):
+  - `operator-update.cjs` — keeps the operator state current after each tool use.
+
+  **After mcp__brain_.* calls:**
+  - `brain-response-sanitize-hook.cjs` — scrubs any reflected content from the Brain response before it reaches the context window. This is the inbound complement to the PreToolUse egress guard.
+
+  **After SlashCommand:**
+  - `telemetry-command-invocation.cjs` — records which `/mos:` command was invoked. Local telemetry only.
+</Accordion>
+
+<Accordion title="UserPromptSubmit — classify and route every turn">
+  UserPromptSubmit fires on every message you send. Seven scripts run in sequence:
+
+  1. **Admin command gate** (`admin-command-gate.cjs`) — checks whether the prompt is an admin command and routes it appropriately before reaching Larry.
+  2. **Intent classifier** (`run-hook.cmd intent-classifier`) — classifies the intent of the message to determine room context and routing.
+  3. **MVA detect** (`mva-detect.cjs`) — detects Minimum Viable Artifacts in the message (CVs, briefs, URLs) and queues them for processing.
+  4. **Brain derivation drain** (`brain-derivation-drain.cjs`) — drains any pending Brain derivation requests from the queue.
+  5. **Operator update** (`operator-update.cjs`) — updates operator state before the turn begins.
+  6. **JTBD update** (`jtbd-update.cjs userprompt`) — updates the Jobs-To-Be-Done model with the new message.
+  7. **Auto-explore drain** (`auto-explore-drain.cjs`) — drains the auto-explore queue for any pending opportunity explorations.
+</Accordion>
+
+<Accordion title="FileChanged, CwdChanged, SubagentStop, TaskCompleted">
+  **FileChanged** — fires when a file in the workspace is changed externally (outside of Claude Code's own writes). `run-hook.cmd on-file-changed` processes the change and updates the room state accordingly.
+
+  **CwdChanged** — fires when the working directory changes during a session. `run-hook.cmd on-cwd-changed` switches the active room context to match the new directory. If the new directory is a registered room, Larry resumes in that room's context.
+
+  **SubagentStop** — fires when a subagent spawned by MindrianOS completes its task. `run-hook.cmd on-agent-complete` processes the agent's output and files any artifacts it produced.
+
+  **TaskCompleted** — fires when a Claude Code task completes. `run-hook.cmd on-task-complete` updates the pipeline progress tracking for any active methodology chain.
+</Accordion>

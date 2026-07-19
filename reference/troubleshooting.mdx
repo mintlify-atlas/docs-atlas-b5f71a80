@@ -1,0 +1,226 @@
+---
+title: "Troubleshoot MindrianOS Installation and Brain Issues"
+sidebarTitle: "Troubleshooting"
+description: "Fix common MindrianOS problems: Brain quota errors, Neo4j connection failures, install drift, permission prompts, and room context issues."
+---
+
+Most MindrianOS problems fall into one of two buckets: Brain connectivity issues (which are always optional — MindrianOS works fully without the Brain) and install or workspace configuration issues. The general rule: when in doubt, remove `.mcp.json` and restart. Everything except five Brain-enriched commands keeps working. Below are the specific symptoms and their fixes.
+
+<Tip>
+  **The universal first step:** Run `mindrian-os doctor --all` from your terminal (outside Claude Code) for a full environment diagnosis. Inside a session, use `/mos:doctor`. For a Brain-specific probe, use `/mos:doctor --brain-smoke`.
+</Tip>
+
+---
+
+## Brain connection issues
+
+<Accordion title="RESOURCE_EXHAUSTED / 429 / Pinecone quota error">
+  **What happened:** Pinecone's free tier has a monthly embedding token limit of 5 million tokens. Every semantic search query to the Brain consumes tokens. When the quota is used up, all Brain searches fail with a `RESOURCE_EXHAUSTED` or `429` error until the billing cycle resets.
+
+  **Immediate fix (30 seconds):**
+
+  ```bash
+  # Remove the Brain config — MindrianOS works fully without it
+  rm -f .mcp.json
+
+  # Restart Claude Code
+  ```
+
+  **What still works without the Brain:**
+
+  All 46+ `/mos:` commands continue to work. Specifically: data room filing and analysis, the local knowledge graph, meeting intelligence, AI team personas (Six Hats), the opportunity bank, funding room, reasoning engine, PDF export, dashboard, and pipelines — all fully functional.
+
+  **Only 5 commands lose enrichment** (they still work, just without Brain-powered intelligence):
+  - `/mos:suggest-next` — works, but without framework chain recommendations
+  - `/mos:find-connections` — works, but without cross-domain pattern discovery
+  - `/mos:compare-ventures` — works, but without similar-venture matching
+  - `/mos:deep-grade` — works, but without calibration from 100+ real projects
+  - `/mos:research` — works, but without semantic cross-reference
+
+  **To restore the Brain later:**
+
+  ```bash
+  /mos:setup brain
+  # Enter your Brain API key when prompted
+  # Request a key at: https://mindrian-os.com/brain-access
+  ```
+</Accordion>
+
+<Accordion title="Neo4j connection refused / Failed to connect">
+  **What happened:** The Neo4j Aura free tier pauses instances after 3 days of inactivity. If you are connecting directly to Neo4j (the legacy database-direct pattern rather than the Brain API), a paused instance returns connection-refused errors.
+
+  **Fix:**
+
+  <Steps>
+    <Step title="Switch to the Brain API key (recommended)">
+      The Brain API server handles Neo4j reconnection automatically and does not pause. Remove the old direct config and set up via the API key instead:
+
+      ```bash
+      rm -f .mcp.json
+      /mos:setup brain
+      ```
+    </Step>
+    <Step title="Wait for Render cold start (if using the Brain API server)">
+      If you are already on the Brain API path and the server is returning connection errors, the Brain server itself may be sleeping on its Render free-tier instance. Wait 60 seconds and try again — Render free-tier instances have a 30–60 second cold start.
+    </Step>
+  </Steps>
+</Accordion>
+
+<Accordion title="Invalid Brain API key / 401 error / DIRECTOR_NOT_AVAILABLE">
+  **What happened:** Your Brain API key is missing from `~/.mindrian.env`, has been entered incorrectly, or has expired. The `DIRECTOR_NOT_AVAILABLE` error specifically indicates that the Brain key is not set or is wrong.
+
+  **Fix:**
+
+  ```bash
+  # Check that your key is present and correct
+  cat ~/.mindrian.env | grep MINDRIAN_BRAIN_KEY
+  ```
+
+  The line should read `MINDRIAN_BRAIN_KEY=<your-key>` with no extra spaces or quotes. If the key is missing or wrong:
+
+  ```bash
+  /mos:setup brain
+  # Enter your Brain API key when prompted
+  ```
+
+  If you need a new key: [mindrian-os.com/brain-access](https://mindrian-os.com/brain-access)
+
+  If you do not have a key and want to work without the Brain:
+
+  ```bash
+  rm -f .mcp.json
+  ```
+</Accordion>
+
+<Accordion title="MCP server failed to start / neo4j-brain not found">
+  **What happened:** Your `.mcp.json` references an MCP server (such as `neo4j-brain`) that is not installed, is misconfigured, or no longer exists at the path specified.
+
+  **Fix:**
+
+  ```bash
+  # Remove the broken config
+  rm -f .mcp.json
+
+  # Restart Claude Code
+  ```
+
+  If you want to reconnect to the Brain, use the API key path — it does not require a locally-running MCP server:
+
+  ```bash
+  /mos:setup brain
+  ```
+</Accordion>
+
+---
+
+## Install and session issues
+
+<Accordion title="Permission prompts — 10+ prompts on first install">
+  **What happened:** This is normal. Claude Code asks for approval each time a hook or script requests a new permission. On a first MindrianOS install, you will see 10 or more prompts covering hook scripts, git commands, and file writes.
+
+  **What to do:**
+
+  For each prompt, pick **"Always allow"** if you are comfortable with that specific command. Once approved, that permission will not re-prompt. If you want to skip all prompts for a session, start Claude Code with:
+
+  ```bash
+  claude --dangerously-skip-permissions
+  ```
+
+  For granular permanent control, copy the permission matcher set into `~/.claude/settings.json` — see the [Settings page](/configuration/settings) for the full matcher list.
+</Accordion>
+
+<Accordion title="Wrong workspace — running from the plugin directory">
+  **What happened:** MindrianOS is designed to operate in your project directory, not in the plugin installation directory. If you start Claude Code from `~/.claude/plugins/mindrian-os/` (or the marketplace cache location), MindrianOS will try to treat the plugin folder itself as your workspace.
+
+  **Fix:**
+
+  ```bash
+  # Navigate to your project directory before starting Claude Code
+  cd ~/your-project-name
+  claude
+  ```
+
+  Or navigate to a MindrianRooms room directly:
+
+  ```bash
+  cd ~/MindrianRooms/my-venture
+  claude
+  ```
+
+  MindrianOS always scopes its session state (`./.mindrian/`) and write operations to the directory where Claude Code is launched.
+</Accordion>
+
+<Accordion title="Session hooks not firing after install">
+  **What happened:** Claude Code loads hooks at startup. A fresh install registers the hooks in `hooks/hooks.json`, but they will not be active until Claude Code restarts.
+
+  **Fix:**
+
+  Close Claude Code completely and reopen it. The hooks will be registered and active from the next session start.
+
+  If hooks still do not fire after a restart, run:
+
+  ```bash
+  mindrian-os doctor --all
+  ```
+
+  This will diagnose install-cache drift, missing hook registrations, and version mismatches.
+</Accordion>
+
+<Accordion title="Room not found — MindrianOS cannot find your room">
+  **What happened:** MindrianOS looks for a room associated with the current working directory. If you start Claude Code from a directory that is not a registered room and is not inside `~/MindrianRooms/`, MindrianOS will not have a room context to load.
+
+  **Fix:**
+
+  <Steps>
+    <Step title="Navigate to an existing room">
+      ```bash
+      cd ~/MindrianRooms/my-project
+      claude
+      ```
+    </Step>
+    <Step title="List your registered rooms">
+      Inside a session, run `/mos:rooms` to see all rooms registered on this machine. The command shows room slugs, paths, and last-active timestamps.
+    </Step>
+    <Step title="Create a new room">
+      From any project directory, run `/mos:ignite` to start the room creation flow. MindrianOS will walk you through naming and scaffolding a new room for the current project.
+    </Step>
+  </Steps>
+</Accordion>
+
+<Accordion title="Commands not recognized — /mos: commands not working">
+  **What happened:** The plugin may not be installed, may need an update, or the command-registration mechanism may have a host-side issue (confirmed on some Windows Claude Code installs).
+
+  **Fix:**
+
+  ```bash
+  # Reinstall the plugin
+  claude plugin marketplace remove mindrian-marketplace
+  claude plugin marketplace add jsagir/mindrian-marketplace
+  claude plugin install mos@mindrian-marketplace
+
+  # Restart Claude Code
+  ```
+
+  If commands still fail to register after reinstall, run the registration diagnostic:
+
+  ```bash
+  mindrian-os doctor --report-registration-bug
+  ```
+
+  This rules out every locally-checkable cause and assembles a diagnostic report if the issue is a host-side Claude Code bug.
+
+  <Note>
+    The plugin was renamed from `mindrian-os` to `mos` in v0.6.0. If you have an old install, run `claude plugin uninstall mindrian-os@mindrian-marketplace` before reinstalling as `mos`.
+  </Note>
+</Accordion>
+
+---
+
+## Diagnostic commands
+
+| Command | Where to run | What it does |
+|---|---|---|
+| `mindrian-os doctor --all` | Terminal (outside Claude Code) | Full environment diagnosis: install drift, hook registrations, Brain key, version mismatches |
+| `/mos:doctor` | Inside a Claude Code session | In-session diagnostic — same checks, available without leaving the session |
+| `/mos:doctor --brain-smoke` | Inside a Claude Code session | Brain-specific connectivity probe — tests key validity, API reachability, and response health |
+| `mindrian-os doctor --report-registration-bug` | Terminal | Diagnostic mode for command-registration failures — rules out local causes and generates a report |

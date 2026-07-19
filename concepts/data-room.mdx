@@ -1,0 +1,127 @@
+---
+title: "The Data Room: Your Persistent Venture Workspace"
+sidebarTitle: "Data Room"
+description: "The Data Room is MindrianOS's venture workspace — it captures decisions, meetings, and findings, then surfaces contradictions, gaps, and connections."
+---
+
+You talk; the room writes itself. Every conversation, every meeting, every decision lands in a folder structure organized by venture stage. You open it in your file manager. You back it up like any other folder. You own it. You never filed a thing.
+
+The Data Room is not a database you query or a dashboard you maintain. It is a folder on your machine that grows smarter the more you put in it — because every new entry triggers a scan against everything already there, and the results surface as contradictions, gaps, and connections that Larry brings to your attention.
+
+## Where the room lives
+
+```
+~/MindrianRooms/          # default home for all your rooms
+  my-venture/             # one folder per room
+    room/                 # the eight ICM sections
+    bank/                 # opportunity bank
+    journal/              # session journal entries
+    exports/              # generated exports (wiki, graph, deck)
+    .room-graph/
+      room.db             # the local SQLite knowledge graph
+    STATE.md              # room health, methodology, mode
+    ROOM.md               # room identity (ICM Layer 0)
+./.mindrian/              # session state, scratchpad
+```
+
+The room lives on your disk. You choose where. The session state at `./.mindrian/` captures the in-progress scratchpad and the birth answers from the current session. Neither folder is ever sent anywhere.
+
+## The eight ICM sections
+
+The room is organized around eight sections that map to venture stages. Larry fills these as you work — you do not sort or file.
+
+| Section | Purpose |
+|---------|---------|
+| `problem-definition` | The core problem, reframed and evidence-graded |
+| `market-analysis` | Market size, trends, customer segments |
+| `solution-design` | Solution, technology, architecture |
+| `business-model` | Revenue model, unit economics, go-to-market |
+| `competitive-analysis` | Competition, positioning, differentiation |
+| `team-execution` | Team, advisors, execution plan |
+| `legal-ip` | Legal structure, agreements, IP protection |
+| `financial-model` | Financial projections, metrics, assumptions |
+
+Beyond the eight sections, the room carries `bank/` (the opportunity bank), `journal/` (session summaries), and `meetings/` (filed transcripts with extracted intelligence).
+
+## The local knowledge graph
+
+Every room contains a SQLite graph at `room/.room-graph/room.db`. This is the local mind of the room — the data structure that makes the room compound over time.
+
+<Note>
+  The room graph is entirely local. It is never sent anywhere. Brain queries carry only generic framework handles — framework names, problem-type enums, phase identifiers — never your notes, decisions, or meetings.
+</Note>
+
+Nodes in the graph follow a hierarchy: `Project → Room → Section → Entry`. Concepts mentioned across entries are linked as `:Concept` nodes. Every methodology run produces a `:MethodologyRun` node connected to the entries it produced.
+
+Entry edges track the epistemic relationship between pieces of evidence:
+
+| Edge type | Meaning |
+|-----------|---------|
+| `SUPPORTS` | One entry reinforces another |
+| `CONTRADICTS` | One entry conflicts with another |
+| `DERIVED_FROM` | One entry was produced from another |
+| `PROMOTED_TO` | A finding was elevated to a decision |
+| `VALIDATED_BY` | A claim was confirmed by evidence |
+| `KILLED_BY` | A claim was invalidated by evidence |
+
+## The intelligence cascade
+
+Every time you add something new to the room — a filed meeting, a methodology result, a pasted URL — the system compares it against everything already there. The cascade produces typed edges that classify how the new entry relates to existing work.
+
+```
+New entry filed
+  → detect() against existing graph
+  → classify relationship direction
+  → emit typed cascade edge:
+      INFORMS      (structural transfer, low confidence)
+      ENABLES      (structural transfer, high confidence)
+      CONVERGES    (semantic implementation, low confidence)
+      INVALIDATES  (semantic implementation, high confidence)
+      CONTRADICTS  (whitespace or blindspot finding)
+```
+
+What surfaces automatically: contradictions between entries that live in different sections, gaps where a section that should have content is empty, connections between meetings a month apart that nobody remembers as related, and missing evidence behind assumptions you made weeks ago.
+
+## The decision workflow
+
+Every surfaced finding renders as a Decision Gate — three choices, every time.
+
+<CardGroup cols={3}>
+  <Card title="APPROVE" icon="check">
+    The finding is correct. It cascades into the room as a typed edge and becomes part of the knowledge graph.
+  </Card>
+  <Card title="REJECT" icon="x">
+    The finding is wrong. You provide a reason. That reason becomes a `REJECTED_BECAUSE` edge — graph data, not a deleted event.
+  </Card>
+  <Card title="DEFER" icon="clock">
+    Not now. The finding is queued for the next milestone audit. The room remembers it was deferred.
+  </Card>
+</CardGroup>
+
+The reason behind a rejection is never discarded. It becomes part of the room's knowledge graph, and the next scan is smarter because the rejection is now data.
+
+## How the room compounds
+
+Most tools get messier the more you put in. Search ranks worse. Folders bloat. The AI forgets what you told it last session. The Data Room goes the other way.
+
+<Tip>
+  Day one: you have a folder. Day thirty: you have a folder that catches the contradiction between yesterday's strategy call and last week's customer interview, brings back the assumption you made in week two when you are about to make a decision in week eight that depends on it, and finds the connection between two meetings a month apart that nobody remembered being related.
+</Tip>
+
+The room compounds because nothing forgets and everything compares. Every prior decision, and the reason behind it, remains part of working memory. When you return to a room after a week away, Larry reads the room back to you — the gaps that opened, the contradictions that need resolving, the opportunities that surfaced since your last session.
+
+## Room views
+
+The room generates three views you can access at any time.
+
+| Command | What it renders |
+|---------|----------------|
+| `/mos:wiki` | A browsable three-panel wiki across all room sections |
+| `/mos:graph "your question"` | Ask a question against the local knowledge graph |
+| `/mos:export presentation` | Six self-contained HTML views: dashboard, wiki, deck, insights, diagrams, graph |
+
+On Claude Desktop, the dashboard, wiki, and knowledge graph appear as inline panels inside the conversation. You do not leave the chat to see the room.
+
+## Room ownership
+
+You own the room. It is a folder. Back it up with any tool you already use — git, Time Machine, Dropbox, an external drive. MindrianOS writes to your rooms and reads from your workspace. It does not push anything to any server. The teaching intelligence that travels is generic methodology. Your specifics stay on your machine.

@@ -1,47 +1,117 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with MindrianOS in 5 Minutes"
+sidebarTitle: "Quickstart"
+description: "Install MindrianOS into Claude Code, start your first room, and have your first Larry conversation — from zero to running in under 5 minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+MindrianOS installs in a single command and activates the moment you restart Claude Code. There is no configuration wizard, no workspace setup, and no framework to learn. You install, you restart, you talk — Larry handles the rest.
 
 ## Prerequisites
 
-Before you begin, you must have:
+Before you install, confirm the following:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- **Node.js ≥ 22.5.0** — check with `node --version`. Download from [nodejs.org](https://nodejs.org) if needed.
+- **Claude Code installed** — the `claude` CLI must be on your PATH. Run `claude --version` to confirm.
+- **Paid Claude plan** — Claude Pro ($20/mo) or higher. MindrianOS runs on top of Claude and requires a plan that supports extended context and tool use.
 
-## Get started
+<Note>
+  Not sure which Claude plan you have? Visit [claude.ai/settings](https://claude.ai/settings) to check. The free tier is not sufficient — MindrianOS relies on Claude's tool-use and extended context capabilities.
+</Note>
+
+## Install MindrianOS
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Run the one-line installer">
+    Open your terminal and run:
 
     ```bash
-    npm install your-package
+    npx @mindrian_os/cli
     ```
+
+    This registers the Mindrian plugin marketplace, refreshes the catalog, and runs `claude plugin install` followed by `claude plugin update` to bring the plugin to the current build.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Approve the Claude Code permission prompts">
+    Claude Code asks you to approve each shell command it runs during install. **10 or more prompts is completely normal.** For any prompt you are comfortable with, choose **"Always allow"** — that permission will not re-prompt for the rest of the session or future sessions.
+
+    <Tip>
+      Choosing "Always allow" on the first few prompts dramatically speeds up subsequent sessions. The read/write surface is bounded to your workspace and your rooms at `~/MindrianRooms/`.
+    </Tip>
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Restart Claude Code">
+    Once the installer finishes, **fully close and reopen Claude Code**. The hooks that load your room context and activate Larry fire on session start — they will not run in a session that was already open during install.
+  </Step>
+
+  <Step title="Verify the install (optional)">
+    Run the diagnostics CLI to confirm everything is wired correctly:
 
     ```bash
-    your-cli start
+    mindrian-os doctor --all
     ```
+
+    You can also run `/mos:doctor` from inside a Claude Code session.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Start your first room
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+There is no setup command to run and no project to initialize. Just open a Claude Code session and start talking.
+
+Describe what you are working on in plain language:
+
+```
+I'm working on a marketplace that connects independent contractors 
+with small businesses for short-term projects. The problem I keep 
+running into is that contractors don't trust the platform enough 
+to lower their rates, even when jobs are guaranteed.
+```
+
+Larry will respond by reframing the problem, asking clarifying questions, and beginning to build the room around your conversation. You do not need to know any framework names or command syntax.
+
+**Alternatively**, type `/mos:ignite` as the explicit front door if you prefer a structured onboarding sequence. Larry will guide you through naming your room, describing the venture, and opening the first discovery session.
+
+## What a first Larry conversation looks like
+
+Larry does not mirror your framing back to you. It probes before it proposes:
+
+> **Larry:** Before we work on the trust problem, I want to make sure we're solving the right one. A few things:
+>
+> When you say contractors "don't trust the platform," have you confirmed that with actual contractors — or is this an inference from low adoption? Those point to very different fixes.
+>
+> Also: is the rate discount a feature you're offering, or something contractors are doing on their own when they win a guaranteed job?
+>
+> I'm asking because the constraint might not be trust at all — it might be that the value proposition for the discount isn't legible to contractors yet. What do the conversations with your first 10 contractors look like?
+
+This is the pattern Larry returns to throughout: reframe the problem, surface the assumption, ask for the evidence. The room fills as you answer.
+
+## What gets created
+
+After your first session, MindrianOS will have created a room folder at:
+
+```
+~/MindrianRooms/<your-room-name>/
+```
+
+The folder structure organizes itself by venture stage — problem, market, solution, team, financials, IP, meetings, and opportunities. You own this folder entirely. Nothing is synced anywhere. Back it up like any other directory.
+
+<Note>
+  The `MINDRIAN_OS_ROOT` environment variable overrides the default install location. This is primarily useful for development clones — most users should leave it unset.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Your First Session" icon="messages" href="/guides/first-session">
+    A deeper walkthrough of what to expect in a first Larry session and how to get the most from it.
+  </Card>
+  <Card title="Meet Larry" icon="user" href="/concepts/larry">
+    How Larry thinks, what it does on your behalf, and why the pushback is the point.
+  </Card>
+  <Card title="Command Reference" icon="terminal" href="/commands/overview">
+    All 111 `/mos:` commands — what they do and when Larry reaches for them.
+  </Card>
+  <Card title="Installation Options" icon="wrench" href="/installation">
+    Marketplace, npm, and shell install paths. Update, repair, and version pinning.
+  </Card>
+</CardGroup>

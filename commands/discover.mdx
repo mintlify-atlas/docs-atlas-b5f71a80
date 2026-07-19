@@ -1,0 +1,75 @@
+---
+title: "/mos:discover — Larry-Led Product Discovery"
+sidebarTitle: "discover"
+description: "/mos:discover runs a six-movement guided conversation — brand, product, and user jobs — and lands a Discovery Brief plus a scaffolded Data Room."
+---
+
+`/mos:discover` is the front door for understanding a client or product before any build begins. Instead of handing you a form, Larry runs a guided, multi-turn conversation across six movements — one question at a time, each following from your last answer — and synthesizes everything into a Discovery Brief plus a scaffolded Data Room. Every decision downstream becomes strategic rather than arbitrary.
+
+<Tip>
+  Good for: web and UX firms starting with a client, solo founders understanding their users, and product teams before a build sprint. Run `/mos:discover` before you touch a design tool.
+</Tip>
+
+## How It Works
+
+Discovery opens with a reframe question — a reward before any interview movement begins. Then Larry leads you through six movements, spending more time where the energy and ambiguity are highest. Between movements, Larry offers a choice gate: go deeper, move on, or branch somewhere unexpected.
+
+Larry never dumps a questionnaire. The question bank is the back pocket, not the script. Each question follows from your last answer.
+
+## The Six Movements
+
+<Steps>
+  <Step title="Warm-up and the Real Why">
+    Why does this project exist at all? What happens if it works — and what happens if nothing changes? Larry surfaces the stakes, the urgency, and the internal reality behind the brief.
+  </Step>
+  <Step title="The Brand's Soul">
+    History, mission, values, personality archetype, and voice. Larry pushes past adjectives like "modern and clean" into stories and the things the brand would never say.
+  </Step>
+  <Step title="The Product's Essence">
+    What it actually is, the one job it does best, what it replaces, the business case, the non-negotiable constraints, and what "done well" looks like in measurable terms.
+  </Step>
+  <Step title="The Users and Their Jobs (JTBD)">
+    For each persona: who they are in context, why they "hire" this product, what they "fire" today, and the trigger that sends them looking. Larry completes the job statement: "When I ___ (situation), I want to ___ (motivation), so I can ___ (outcome)."
+  </Step>
+  <Step title="The Competition and the Whitespace">
+    Who the client admires and why, who they refuse to resemble, and where the whole category looks and sounds the same. The one true sentence no competitor can honestly say.
+  </Step>
+  <Step title="The Product as a Habit Loop">
+    The trigger, action, variable reward, and investment that the finished product should create. Larry also runs an ethics check: does this loop improve the user's life, or does it extract from it?
+  </Step>
+</Steps>
+
+## The Output
+
+After the conversation, Larry synthesizes everything into:
+
+- **A Discovery Brief** filed to the room — brand soul, product essence, personas with JTBD cards, positioning, habit loop, plain-language message, design implications, and open questions
+- **A scaffolded Data Room** with sections per movement, each ready for the next phase
+- **Persona files** at `room/team/ai-personas/` with embedded JTBD cards
+
+Every guess is marked `proposed` — it will not harden into a fact until you confirm it.
+
+## After Discovery
+
+Once the Discovery Brief is complete, Larry bridges it to a plain-language message ("explain it to a smart twelve-year-old") and routes to `/mos:ignite` for room birth. The brief content pre-fills the B2 blueprint gate.
+
+```bash
+# After discovery, get a next-step recommendation
+/mos:suggest-next
+```
+
+## Usage
+
+```bash
+# Start a guided discovery conversation
+/mos:discover
+```
+
+```bash
+# Discover with a warm target already in mind
+/mos:discover "Acme onboarding flow"
+```
+
+<Note>
+  All discovery content — brand soul, product essence, persona names, JTBD content — stays local. None of it enters a Brain query. The only Brain-bound value is the generic framework handle used to fetch methodology guidance.
+</Note>

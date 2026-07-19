@@ -1,0 +1,111 @@
+---
+title: "PWS: Problems Worth Solving Methodology"
+sidebarTitle: "PWS Methodology"
+description: "PWS is the innovation methodology built by Prof. Lawrence Aronhime. MindrianOS delivers it through Larry — right framework, right order, right stage."
+---
+
+PWS is not a checklist. It is a way of thinking about ventures as wicked problems — problems that must be reframed before they can be solved, and that demand a working memory because no one can hold the whole thing in their head. MindrianOS delivers PWS through Larry's conversations. You describe what you are doing. Larry routes you to the right framework at the right stage, chains the output of one framework into the input of the next, and pushes back when your confidence outruns your evidence.
+
+## Prof. Lawrence Aronhime and the source of the methodology
+
+PWS was built and tested through 20 years of teaching by Prof. Lawrence Aronhime. The framework sequencing rules that Larry follows — which framework to use, in what order, under what conditions — were not derived from theory. They were discovered by watching 100+ students apply frameworks to real ventures and recording what worked, what failed, and why. That observational record is the moat. It is what separates Larry from a model that can list frameworks from a teaching partner that knows when to reach for each one.
+
+<Note>
+  The Brain's 163 `Framework → Framework` edges and ~7,900 traversable chains are direct artifacts of Prof. Aronhime's teaching corpus — real classroom observations compiled into a queryable graph.
+</Note>
+
+## The four problem types
+
+PWS classifies every venture problem into one of four types. The classification determines which frameworks apply and in what order.
+
+<CardGroup cols={2}>
+  <Card title="Un-Defined" icon="circle-question">
+    The problem space is not yet clear. Frameworks: Domain Explorer, Trending to Absurd, Scenario Planning, S-Curve Analysis. The work is decomposition and sense-making.
+  </Card>
+  <Card title="Ill-Defined" icon="triangle-exclamation">
+    The problem is partially visible but not well-structured. Frameworks: JTBD, Ackoff Problem Dissolving, Beautiful Question, Known-Unknowns Mapping. The work is sharpening the frame.
+  </Card>
+  <Card title="Wicked" icon="dragon">
+    The problem resists simple definition and changes as you understand it. Frameworks: Six Thinking Hats (Bono), Reverse Salient, Nested Problems. The work is managing complexity and stakeholder perspectives.
+  </Card>
+  <Card title="Well-Defined" icon="circle-check">
+    The problem is clear and bounded. Frameworks: Minto Pyramid Principle, Triple Validation, Investment Thesis, Grading. The work is structuring the argument and validating evidence.
+  </Card>
+</CardGroup>
+
+Larry detects the problem type from your conversation and routes you to the right framework cluster. You never have to classify the problem yourself.
+
+## Framework chaining: how one output becomes the next's input
+
+The power of PWS is not in any single framework — it is in chaining them so each framework's output becomes the next one's input. This is the `FEEDS_INTO` relationship in the Brain's knowledge graph: 163 `Framework → Framework` edges encoding real sequencing rules discovered through classroom observation.
+
+| Source framework | Output | Target framework | Becomes |
+|-----------------|--------|-----------------|---------|
+| Domain Explorer | Sub-domains | Six Thinking Hats (Bono) | Hats (one per perspective) |
+| Domain Explorer | Sub-domains | JTBD | Personas (one per stakeholder) |
+| Domain Explorer | Sub-domains | Scenario Planning | Uncertainty axes |
+| Six Thinking Hats | Hat insights | JTBD | Context per persona |
+| Six Thinking Hats | Hat insights | Minto | Evidence for the pyramid |
+| JTBD | Unmet jobs | Minto | SCQA complication |
+| JTBD | Unmet jobs | Devil's Advocate | Assumptions to test |
+| Minto | Thesis | Devil's Advocate | Target for stress-testing |
+| Minto | Thesis | Investment Thesis | Core thesis |
+| Devil's Advocate | Survivors | Investment Thesis | Validated evidence |
+| HSI | Bridges | Domain Explorer | New domains to explore |
+| Reverse Salient | Bottlenecks | Minto | Complication framing |
+
+## The four standard chains
+
+Four chains cover the most common venture trajectories. Larry selects the chain that fits your stage and problem type.
+
+<CardGroup cols={1}>
+  <Card title="Chain A — Problem to Thesis" icon="a">
+    **Domain Explorer → Six Thinking Hats → JTBD → Minto → Devil's Advocate → Investment Thesis**
+
+    Start with an undefined problem space. Decompose into domains, stress-test through six perspectives, find the unmet jobs, structure the argument, challenge the thesis, then validate the investment case.
+  </Card>
+  <Card title="Chain B — Discovery to Validation" icon="b">
+    **HSI → Domain Explorer → Validation → Minto**
+
+    Start with a structural insight or bridge between domains. Expand it through domain decomposition, validate the claim against evidence, then structure the argument.
+  </Card>
+  <Card title="Chain C — System Analysis" icon="c">
+    **Domain Explorer → Reverse Salient → JTBD → Six Thinking Hats → Minto**
+
+    Start with a domain map, identify the lagging component that is holding the system back, find the jobs that component is failing to do, stress-test through six perspectives, then structure the argument.
+  </Card>
+  <Card title="Chain D — Full Venture" icon="d">
+    **Domain Explorer → HSI → Six Thinking Hats → JTBD → Scenario Planning → Minto → Devil's Advocate → Investment Thesis**
+
+    The full chain from domain decomposition through investment validation. Used when a venture is being built from first principles across all stages.
+  </Card>
+</CardGroup>
+
+## Why timing is the moat
+
+Anyone can list frameworks. The moat is knowing which framework you need at the stage you are in, and reaching for it the moment you are stuck — before you ask for it by name.
+
+A model trained on methodology can tell you what JTBD is. Larry knows when JTBD is the right move: after Domain Explorer has produced sub-domains that need persona mapping, when your problem is Ill-Defined and the unmet jobs are still invisible, when the Bono hats have produced hat insights that need to be sorted by stakeholder. That timing comes from decades of teaching calibration, not from the text of a methodology paper.
+
+## The Brain amplifies PWS
+
+When the Brain is connected, Larry's framework sequencing is powered by a live knowledge graph with 27,900+ nodes, 163 `Framework → Framework` edges, and ~7,900 traversable chains at depth 1–4. The Brain holds the chaining rules, the phase progressions, and the grading rubric calibrated from 100+ real student projects.
+
+```
+Brain query: suggest_chain(room_state, problem_type, user_history)
+Brain returns: ranked framework chain with confidence scores
+Larry: "Based on where you are, the next move is JTBD.
+        Your Domain Explorer produced 5 sub-domains —
+        each one maps to a persona with unmet jobs."
+```
+
+## Tier 0 — full methodology without the Brain
+
+When the Brain is not connected, the pedagogy is still intrinsic. The `references/` directory carries a curated subset of the Brain's framework corpus as local text files, plus static chain suggestions and the mode algorithm. Tier 0 Larry is good. Tier 1 Larry (with Brain) is a master teacher. The difference is a textbook versus the professor who wrote it.
+
+| Tier | Brain status | What Larry has |
+|------|-------------|----------------|
+| Tier 0 | Not connected | Embedded framework references, static chain suggestions, mode algorithm |
+| Tier 1 | Connected | Live graph enrichment, dynamic chain recommendations, grading calibration, mode intelligence |
+
+Larry never tells you which tier is active. There is no degraded mode message. The teaching continues either way.

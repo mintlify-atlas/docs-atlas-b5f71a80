@@ -1,0 +1,105 @@
+---
+title: "/mos:analyze-needs — Map Who Has This Problem"
+sidebarTitle: "analyze-needs"
+description: "/mos:analyze-needs runs a structured needs analysis — who has the problem, how badly, what they have tried, and why existing solutions fall short."
+---
+
+When you need to know which customer jobs matter most, `/mos:analyze-needs` scores them by **importance versus satisfaction**. It works best after you have a customer segment defined — the command starts from a real person, not a persona, and pulls the actual job statement out through conversation before adding the importance and satisfaction scores. Features are explicitly not jobs; Larry will redirect every time. The emotional and social dimensions of the job are never skipped. This command is the structured backbone of problem-definition work inside the PWS methodology.
+
+## Usage
+
+```
+/mos:analyze-needs
+```
+
+No arguments required. Larry reads `room/STATE.md` for existing venture context before opening. Best run after `/mos:beautiful-question` has produced a reframed problem statement — the needs analysis lands sharper when the problem framing is already tight.
+
+<Note>
+  **Prerequisite:** A customer segment defined — even loosely. If you don't have one yet, `/mos:beautiful-question` is the right first move. The needs analysis needs a real person to work from, not a hypothetical user class.
+</Note>
+
+## What happens
+
+<Steps>
+  <Step title="Context load">
+    Larry reads `room/STATE.md` and any existing problem-definition and market-analysis entries. If a previous `/mos:beautiful-question` session has filed a reframed problem statement, Larry uses it as the anchor.
+  </Step>
+  <Step title="Pace check">
+    Larry asks: *Quick pass or deep dive?* Quick pass surfaces the top three jobs and their scores in a single exchange. Deep dive walks one job at a time, pressing on importance and satisfaction before moving to the next.
+  </Step>
+  <Step title="Customer anchoring">
+    Larry asks for a real, specific person — not a segment label. *Who exactly is experiencing this? Can you name one?* The analysis stays grounded in a concrete individual until the job statement is complete, then generalises.
+  </Step>
+  <Step title="Job statement extraction">
+    Larry pulls the job statement out through conversation. If you offer a feature (*they want a dashboard*), Larry redirects to progress: *What are they trying to accomplish — what does a dashboard let them do that they can't do now?* The job is always about progress, never about a product attribute.
+  </Step>
+  <Step title="Emotional and social dimensions">
+    Larry explicitly asks for the emotional job (*How does the customer want to feel when this is done?*) and the social job (*How do they want to be seen by others?*). These are never optional — the analysis is incomplete without them.
+  </Step>
+  <Step title="Importance and satisfaction scoring">
+    For each job, Larry scores importance (how much does achieving this job matter to the customer?) and satisfaction (how well are existing solutions delivering it?). The gap — high importance, low satisfaction — is the opportunity surface.
+  </Step>
+  <Step title="Existing alternatives audit">
+    Larry asks what the customer currently does to get the job done: *What do they hire today, even if it's a workaround? Why does it fall short?* This surfaces the real competitive set, which is rarely the obvious one.
+  </Step>
+  <Step title="Artifact creation and filing">
+    Larry composes the needs analysis artifact. Before writing, Larry asks: *File this to market-analysis?* On confirmation, the artifact is filed to `room/market-analysis/jtbd-analysis/`.
+  </Step>
+  <Step title="Methodology chaining">
+    If the job analysis reveals a connection to another methodology, Larry surfaces it: *The job you uncovered connects to [methodology]. Want to explore that next?*
+  </Step>
+</Steps>
+
+## Output / Artifacts
+
+The command produces a needs analysis document filed to the room's market-analysis section:
+
+```
+room/market-analysis/jtbd-analysis/<timestamp>.md
+```
+
+The artifact contains:
+- **Customer anchor** — the real person the analysis was grounded in
+- **Job statements** — functional, emotional, and social jobs, each with a clean job-statement sentence
+- **Importance × satisfaction scores** — the opportunity matrix for each job
+- **Existing alternatives** — what the customer currently hires and why it falls short
+- **Opportunity surface** — the highest-gap jobs ranked by importance minus satisfaction
+
+<Tip>
+  The JTBD analysis artifact is the primary input for `/mos:jtbd` (which deepens the job taxonomy) and for `/mos:bono` (where the jobs become research axes across the six hats).
+</Tip>
+
+## Example
+
+```
+/mos:analyze-needs
+```
+
+Larry opens:
+
+> *Quick pass or deep dive?*
+
+You respond: *Deep dive. Our customer segment is early-stage founders who are writing their first investor update.*
+
+Larry anchors: *Can you name a specific founder you've talked to?* You name someone. Larry draws out the functional job (*They're trying to show progress without having much to show yet*), then presses for the emotional dimension (*They want to feel credible — not like they're faking it*) and social (*They want to be seen by investors as someone who knows what they're doing*).
+
+Importance score: 9/10. Satisfaction with current approach (copying templates from the internet): 3/10. Gap: 6 points — high opportunity surface.
+
+Filed artifact includes three job statements with scores and the existing-alternatives audit (investor update templates, copying peers, writing from scratch).
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:beautiful-question" href="/commands/beautiful-question">
+    Reframe the problem statement before running the needs analysis.
+  </Card>
+  <Card title="/mos:jtbd" href="/commands/jtbd">
+    Inspect or set the active job-to-be-done signal Larry uses to orient the room.
+  </Card>
+  <Card title="/mos:bono" href="/commands/bono">
+    Run a six-hat governed research debate with the jobs as debate axes.
+  </Card>
+  <Card title="/mos:map-unknowns" href="/commands/map-unknowns">
+    Surface the confident-but-thin assumptions embedded in the jobs analysis.
+  </Card>
+</CardGroup>

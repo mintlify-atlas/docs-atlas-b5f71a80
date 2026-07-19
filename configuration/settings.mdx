@@ -1,0 +1,141 @@
+---
+title: "Configure MindrianOS Settings and Environment"
+sidebarTitle: "Settings"
+description: "MindrianOS reads settings from ~/.claude/settings.json and ~/.mindrian.env. Learn how to tune permissions, room paths, and environment variables."
+---
+
+MindrianOS is configured through two files that work in tandem: `~/.claude/settings.json` controls what Claude Code is permitted to do on your behalf, and `~/.mindrian.env` (or the project-level `.env.brain` file) holds the environment variables that connect MindrianOS to the Brain API and tell it where to find your rooms. Neither file is required to get started — MindrianOS installs sensible defaults — but understanding both gives you precise control over permission prompts, the Brain connection, and session behavior.
+
+## The two config files
+
+<CardGroup cols={2}>
+  <Card title="~/.claude/settings.json" icon="shield-check">
+    Claude Code permission matchers that govern what MindrianOS hooks and scripts are allowed to do: file writes, shell commands, and web fetches.
+  </Card>
+  <Card title="~/.mindrian.env" icon="key">
+    Environment variables for the Brain API key, plugin root override, and the Phase 198 MCP-first flag. Chmod 600 — this file holds your key.
+  </Card>
+</CardGroup>
+
+---
+
+## settings.json — permission matchers
+
+Claude Code asks for approval each time a hook or script tries to do something new. On a first install you will see 10 or more prompts. You have two options:
+
+<Tabs>
+  <Tab title="Granular matchers (recommended)">
+    Copy the matcher set from `docs/settings-template.json` into `~/.claude/settings.json`. This grants only the exact surface MindrianOS needs and nothing more.
+
+    ```json
+    {
+      "permissions": {
+        "allow": [
+          "Bash(git status:*)",
+          "Bash(git diff:*)",
+          "Bash(git log:*)",
+          "Bash(git show:*)",
+          "Bash(git branch:*)",
+          "Bash(git add:*)",
+          "Bash(git commit:*)",
+          "Bash(git tag:*)",
+          "Bash(node bin/mindrian-tools.cjs:*)",
+          "Bash(node scripts/*.cjs:*)",
+          "Bash(python3 scripts/*.py:*)",
+          "Read(**)",
+          "Write(~/MindrianRooms/**)",
+          "Write(./.mindrian/**)",
+          "Write(./exports/**)",
+          "Write(/tmp/**)",
+          "WebFetch(domain:api.grants.gov)",
+          "WebFetch(domain:api.tavily.com)",
+          "WebFetch(domain:api.semanticscholar.org)"
+        ]
+      }
+    }
+    ```
+
+    **What each matcher controls:**
+
+    | Matcher | What it allows |
+    |---|---|
+    | `Bash(git *:*)` | Git operations for version tracking within your workspace |
+    | `Bash(node scripts/*.cjs:*)` | All MindrianOS hook scripts and background workers |
+    | `Bash(node bin/mindrian-tools.cjs:*)` | The `mindrian-tools` CLI used by commands like `/mos:graph` |
+    | `Read(**)` | Reading files anywhere in scope (rooms, workspace, plugin) |
+    | `Write(~/MindrianRooms/**)` | Writing room artifacts — decisions, opportunities, meetings |
+    | `Write(./.mindrian/**)` | Session state files scoped to the current project directory |
+    | `Write(./exports/**)` | PDF and dashboard export output |
+    | `Write(/tmp/**)` | Temporary files used during hook processing |
+    | `WebFetch(domain:api.grants.gov)` | Grants research for `/mos:opportunities` |
+    | `WebFetch(domain:api.tavily.com)` | Web ingestion for `/mos:research <url>` |
+    | `WebFetch(domain:api.semanticscholar.org)` | Academic paper search |
+  </Tab>
+  <Tab title="Zero prompts (dangerously-skip-permissions)">
+    For a fully frictionless session, start Claude Code with the `--dangerously-skip-permissions` flag.
+
+    ```bash
+    claude --dangerously-skip-permissions
+    ```
+
+    <Note>
+      With `--dangerously-skip-permissions`, Claude Code skips all permission prompts for the session. The write surface is still bounded — MindrianOS only writes to your workspace, `~/MindrianRooms/`, `./.mindrian/`, and `/tmp/`. No permission flag changes what MindrianOS is architecturally allowed to write; the flag only removes the confirmation dialogs.
+    </Note>
+  </Tab>
+</Tabs>
+
+---
+
+## ~/.mindrian.env — environment variables
+
+Create `~/.mindrian.env` (or copy `.env.brain.template` from the plugin) and fill in the values you need. The file is loaded by `lib/core/resolve-brain-key.cjs` at every session start.
+
+```bash
+chmod 600 ~/.mindrian.env
+```
+
+The `/mos:setup brain` command writes this file for you when you configure the Brain.
+
+### Key environment variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `MINDRIAN_BRAIN_KEY` | Your Brain API key. Authenticates requests to the Brain with `Authorization: Bearer <key>`. Request a key at [mindrian-os.com/brain-access](https://mindrian-os.com/brain-access). | *(unset — Brain disabled)* |
+| `MINDRIAN_OS_ROOT` | Override the plugin root directory. Use when developing a local clone of the plugin instead of the marketplace-installed copy. | Resolved automatically from `CLAUDE_PLUGIN_ROOT` |
+| `MINDRIAN_MCP_FIRST` | Phase 198 MCP-first flag. Set to `'cli'` to route the sessionstart-coordinator and statusline through the MCP daemon, or `'all'` to include stop-gate enforcement. Leave unset (the default) for fully local behavior. | *(unset — local mode)* |
+| `MINDRIAN_BRAIN_URL` | Override the Brain API endpoint. Defaults to `https://mindrian-brain.onrender.com` (moving to `https://brain.mindrian.ai`). | `https://mindrian-brain.onrender.com` |
+
+### Brain connection variables (advanced / legacy MCP path)
+
+The HTTP path requires only `MINDRIAN_BRAIN_KEY`. The variables below are only needed if you are running the bundled `mcp-server-brain` or connecting to your own Neo4j/Pinecone infrastructure directly.
+
+| Variable | Description |
+|---|---|
+| `SUPABASE_URL` | Supabase project URL hosting the Brain key/auth DB |
+| `SUPABASE_KEY` | Supabase service-role key (never share publicly) |
+| `NEO4J_URI` | Neo4j connection URI (`bolt://` or `neo4j+s://`) |
+| `NEO4J_USERNAME` | Neo4j username |
+| `NEO4J_PASSWORD` | Neo4j password |
+| `PINECONE_API_KEY` | Pinecone API key for semantic search |
+
+---
+
+## Room location
+
+MindrianOS stores your rooms and session state in two places:
+
+<Steps>
+  <Step title="Room artifacts — ~/MindrianRooms/">
+    The default root for all rooms. Each room is a folder: `~/MindrianRooms/my-project/`. You can open, edit, back up, and version-control these folders like any other directory. Run `/mos:rooms` to list all rooms registered on this machine.
+  </Step>
+  <Step title="Session state — ./.mindrian/">
+    Per-project session state written to the current working directory. This includes the session binding, intent cache, and hook side-channel files. It is scoped to the project you started Claude Code from.
+  </Step>
+  <Step title="Local knowledge graph — room/.room-graph/room.db">
+    A SQLite database inside each room folder. The entire local knowledge graph — nodes, typed edges, artifact metadata — lives here. It never leaves your machine.
+  </Step>
+</Steps>
+
+<Tip>
+  Run `mindrian-os doctor --all` from the command line (outside Claude Code) to diagnose environment drift: missing keys, wrong workspace, stale hooks, and install-cache mismatches. Inside a session, use `/mos:doctor` or `/mos:doctor --brain-smoke` for a Brain-specific connectivity probe.
+</Tip>

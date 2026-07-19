@@ -1,0 +1,138 @@
+---
+title: "/mos:opportunities — Manage the Opportunity Bank"
+sidebarTitle: "opportunities"
+description: "/mos:opportunities scans for grants matching your room context, surfaces them with HSI scores, and manages a live funding pipeline — not just a list."
+---
+
+When you need to manage grants as a live pipeline rather than a list, `/mos:opportunities` surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product. The command does not search for grants by category — it reads your room's specific domain, geography, venture stage, and problem definition, then generates search queries from that context. Every room gets different results.
+
+## Usage
+
+```text
+/mos:opportunities scan
+/mos:opportunities list [--domain <name>] [--knight <position>] [--min-confidence <N>]
+/mos:opportunities add
+```
+
+| Subcommand | Description |
+|---|---|
+| `scan` | Context-driven grant discovery — reads your room and searches Grants.gov and Simpler Grants |
+| `list` | Browse all banked opportunities ordered by HSI score, with optional filters |
+| `add` | Manually add an opportunity to the bank |
+
+## How Opportunities Enter the Bank
+
+Opportunities enter through two distinct paths:
+
+<CardGroup cols={2}>
+  <Card title="Grant discovery (scan)" icon="magnifying-glass">
+    External funding opportunities from Grants.gov and Simpler Grants, surfaced after you confirm. Nothing files automatically — you review results and decide.
+  </Card>
+  <Card title="Intelligence cascade (automatic)" icon="bolt">
+    Every methodology command that triggers `analyze-room` extracts gaps, convergences, and contradictions as bankable opportunities. These are filed automatically with no user action needed.
+  </Card>
+</CardGroup>
+
+Every opportunity carries a **Knight position** (risk / uncertainty / mixed) and a **confidence score**:
+- **Risk** — a known problem with quantifiable odds
+- **Uncertainty** — an unknown problem requiring exploration
+- **Mixed** — a contradiction that could go either way
+
+## What Happens: `scan`
+
+<Steps>
+  <Step title="Room context read">
+    Larry reads your room's `STATE.md` (domain, geography, venture stage) and `problem-definition/` content to understand your specific venture context.
+  </Step>
+  <Step title="Query generation from room data">
+    Search queries are generated from YOUR room data — `domain_keywords` become API keyword parameters, `geography` becomes eligibility filters, `venture_stage` drives grant type matching (e.g. SBIR for pre-revenue). Not hardcoded searches.
+  </Step>
+  <Step title="Concurrent API search">
+    Larry searches Grants.gov and Simpler Grants APIs concurrently, deduplicates results, and scores each by relevance to your room.
+  </Step>
+  <Step title="Results presented with HSI scores">
+    Opportunities are surfaced in a table showing funder, program, amount, deadline, and relevance score. Larry explains the reasoning for each match.
+  </Step>
+  <Step title="Confirm-first filing decision">
+    Larry presents the results and asks: file all, review individually, or skip. Nothing is filed without your decision.
+  </Step>
+</Steps>
+
+<Note>
+  If your room lacks sufficient context for grant discovery — no `domain_keywords` in `STATE.md`, sparse `problem-definition/` content, or no `geography` — Larry will explain exactly what's missing and point you to `/mos:room update`.
+</Note>
+
+## What Happens: `list`
+
+The `list` subcommand shows all banked opportunities in a unified table covering both grant-scanned and cascade-extracted opportunities:
+
+| # | Source | Program / Problem | Knight Position | Confidence | Deadline | Status |
+|---|---|---|---|---|---|---|
+| 1 | NIH | SBIR Phase I | risk | 0.85 | 2026-06-01 | filed |
+| 2 | diagnose | Missing structural coverage in market-analysis | uncertainty | 0.80 | — | banked |
+
+### Filter Flags
+
+```text
+/mos:opportunities list --domain market-analysis
+/mos:opportunities list --knight uncertainty
+/mos:opportunities list --min-confidence 0.7
+/mos:opportunities list --domain healthcare --knight uncertainty --min-confidence 0.5
+```
+
+| Flag | Description |
+|---|---|
+| `--domain <name>` | Filter by domain (partial match, case-insensitive) |
+| `--knight <position>` | Filter by Knight position: `risk`, `uncertainty`, or `mixed` |
+| `--min-confidence <N>` | Filter by minimum confidence score (0.0–1.0) |
+
+## Rejection Handling
+
+When you reject an opportunity, capturing the reason matters. Rejection is data — the reason is recorded in `opportunity-bank/STATE.md` and informs future scans, making them progressively smarter.
+
+Larry will ask: "Why are you passing on this one? This helps me find better matches next time."
+
+<Tip>
+  After a scan surfaces a candidate you want to evaluate more deeply, use `/mos:qualify-opportunity` to run the full Q1–Q8 qualification card. One explicit Explore after approval turns the opportunity into cited deep research filed in your opportunity bank.
+</Tip>
+
+## Discovery is Context-Driven
+
+The key distinction: Larry does not search for "AI grants" because a category is hardcoded. Larry searches for grants that match this room's specific problem domain, geography, team profile, and venture stage. The room context generates the search queries:
+
+| Room data | How it drives discovery |
+|---|---|
+| `domain_keywords` in STATE.md | API keyword parameters and funding categories |
+| `geography` in STATE.md | Eligibility filters |
+| `venture_stage` in STATE.md | Grant type matching (SBIR for pre-revenue, etc.) |
+| `problem-definition/` content | Additional domain terms |
+
+## Examples
+
+```text
+# Discover grants matching your room context
+/mos:opportunities scan
+
+# Browse all banked opportunities
+/mos:opportunities list
+
+# Filter to high-confidence uncertainty-type opportunities in healthcare
+/mos:opportunities list --domain healthcare --knight uncertainty --min-confidence 0.7
+```
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:qualify-opportunity" href="/commands/qualify-opportunity">
+    Run the full Q1–Q8 qualification card on a surfaced candidate before filing it.
+  </Card>
+  <Card title="/mos:research" href="/commands/research">
+    Pull fresh web evidence that informs grant relevance and opportunity context.
+  </Card>
+  <Card title="/mos:graph" href="/commands/graph">
+    Query the opportunity graph to surface gaps, contradictions, and connections across the bank.
+  </Card>
+  <Card title="/mos:find-connections" href="/commands/find-connections">
+    Discover non-obvious cross-domain patterns that could reveal new funding angles.
+  </Card>
+</CardGroup>

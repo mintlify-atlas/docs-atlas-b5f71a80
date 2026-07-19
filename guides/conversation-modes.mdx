@@ -1,0 +1,113 @@
+---
+title: "How Larry Shifts Conversation Modes"
+sidebarTitle: "Conversation Modes"
+description: "MindrianOS routes every message through an intent classifier that sets the conversation mode — JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE."
+---
+
+The conversation is the whole interface — and it adapts to what you're actually doing. Every message you send is classified by intent before Larry responds, and that classification sets the conversation mode. You don't switch modes manually. Larry reads what you're describing, shifts the mode to match, and changes how he engages accordingly. A casual question gets a different Larry than an active room-building session, which gets a different Larry than a framework running to completion.
+
+## The five modes
+
+| Mode | Trigger | What Larry Does |
+|------|---------|-----------------|
+| `JUST_TALK` | Exploratory, open-ended input — you're thinking out loud | Asks clarifying questions, reframes the problem, doesn't rush to file anything |
+| `EXPLORE_CAPTURE` | You describe something specific enough to be worth filing | Takes notes, maps insights to room sections, builds context without interrupting flow |
+| `BUILD_ROOM` | Active construction — commands are firing, sections are populating | Runs commands, files artifacts, surfaces what just changed and what contradicts what |
+| `METHODOLOGY` | A named framework is running — a sequence of steps is in progress | Sequences the methodology steps, surfaces the chain, holds you to the method's logic |
+| `DECISION_GATE` | A finding needs your decision — approve, reject, or defer | Presents a structured card with the finding, the reasoning, and your three options |
+
+## How mode shifts work
+
+A `UserPromptSubmit` hook fires on every message. Before Larry responds, the hook classifies the intent of your input and sets the current mode. This is deterministic routing — the mode is a function of what you said and what the room currently knows, not a guess.
+
+Mode shifts are not announced. Larry simply engages differently. A turn that starts in `JUST_TALK` can shift to `EXPLORE_CAPTURE` mid-session when you describe something concrete enough to file. A methodology completing its last step shifts to `DECISION_GATE` when it produces a finding that needs your judgment.
+
+## Three ways to enter a session
+
+MindrianOS recognizes three entry modes, and you can use any of them at any point:
+
+<Tabs>
+  <Tab title="Natural Conversation">
+    Just talk. No command needed. Describe what you're doing, what you're stuck on, or what you learned. Larry classifies your intent and routes to the right method.
+
+    > "I interviewed three customers last week and I'm not sure what to make of what they told me."
+
+    Larry reads this as `EXPLORE_CAPTURE` heading toward `/mos:file-meeting` or discovery work, and responds accordingly.
+  </Tab>
+  <Tab title="Direct Command">
+    Type a `/mos:` command directly when you already know the shortcut. Commands are the internals — explicit shortcuts to known surfaces. Larry still provides context and routes what happens next.
+
+    ```bash
+    /mos:beautiful-question
+    /mos:opportunities scan
+    /mos:grade
+    ```
+  </Tab>
+  <Tab title="F-Shape Selector">
+    When you're not sure what to do next, Larry surfaces the F-shape selector: a ranked set of the top three next-move commands based on your room's current state and the Brain's `FEEDS_INTO` chain recommendations.
+
+    Each option comes with accept / defer / reject / none-fit affordances. You pick with arrow keys, not by typing a command name. Your decision — including a reject or defer — is recorded as graph data and makes the next recommendation smarter.
+  </Tab>
+</Tabs>
+
+## The F-shape selector
+
+The F-shape selector is Larry's primary way of proposing what to do next. When the methodology graph suggests a framework chain, or when the room state indicates a natural next step, Larry renders a ranked card:
+
+```
+Choose next reach:
+  ▶  /mos:bono         — run six-hats debate on your sub-domains   [RECOMMENDED]
+     /mos:analyze-needs — map who has this problem and how badly
+     /mos:research       — pull evidence from web + Brain methodology
+
+  [accept]  [defer]  [reject]  [none fit]
+```
+
+The top recommendation carries a `RECOMMENDED` marker only when the Brain's confidence is 0.70 or higher. Below that threshold, the marker is absent — the card surfaces options without overclaiming.
+
+Selecting "none fit" routes you to `/mos:do` with your intent captured, so Larry can propose something else without losing what you were trying to accomplish.
+
+## The autonomy gate
+
+For chains of commands that can safely run unattended, use:
+
+```bash
+/mos:act --chain
+```
+
+Larry computes the framework chain from your room state, identifies which steps are marked `autonomous_safe`, and runs the safe prefix unattended. The chain stops at the first step that requires a human judgment call — a Decision Gate, an approval, a choice between directions — and hands control back to you.
+
+The gate is structural, not a preference setting. Steps that need you will always need you. The autonomy gate makes the unattended work explicit rather than hiding it.
+
+## Mode-aware session behavior
+
+Larry adapts not just to what you say but to the shape of the session itself. Four session-level signals shift how Larry engages:
+
+<Accordion title="2+ redirections → follow-mode">
+If Larry has redirected you twice in a session — steered you away from a direction with insufficient evidence, or caught a contradiction — he enters follow-mode. Questions become more pointed. He's tracking a thread.
+</Accordion>
+
+<Accordion title="Idle >5 minutes → surface a gap">
+If the session goes quiet for more than five minutes, Larry surfaces a gap the room currently has — an unanswered question, a section that's empty despite having upstream input, or a contradiction that hasn't been resolved.
+</Accordion>
+
+<Accordion title="Turn >8 → saturation check">
+After eight or more turns in a session, Larry checks whether the conversation has reached saturation — whether you're covering new ground or circling. If the density of new insight is dropping, he may suggest filing what you have and shifting to a different method.
+</Accordion>
+
+<Accordion title="Returning session → brief">
+When you return to a room after time away, Larry opens with a brief: what the room currently knows, what changed since your last session, what the open questions are, and where the most important gaps sit. No re-explaining context you already set.
+</Accordion>
+
+## Decision Gate mode
+
+`DECISION_GATE` is the mode where the work stops until you weigh in. It appears when:
+
+- A methodology surfaces a finding that needs approval before it files
+- The opportunity harvest produces a qualified candidate
+- A research result contradicts something already in the room
+- The room detects a gap that could resolve in multiple ways
+
+At a Decision Gate, you have exactly three options: **APPROVE**, **REJECT** (with a reason), or **DEFER**. All three are recorded as typed graph data. A rejection reason becomes part of the room — it informs the next scan, the next recommendation, and the next time Larry encounters something similar.
+
+This is not a formality. Canon Part 3 of the MindrianOS architecture specifies that material decisions — anything that changes the room — require a human at the gate. Larry proposes; you decide.

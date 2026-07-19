@@ -1,0 +1,118 @@
+---
+title: "/mos:find-connections — Cross-Domain Pattern Discovery"
+sidebarTitle: "find-connections"
+description: "/mos:find-connections uses Brain semantic search to surface non-obvious connections between your room's entries and the methodology graph — analogies, precedents, and bridges."
+---
+
+When you suspect your work touches a pattern in another field, `/mos:find-connections` traces cross-domain links through the Brain graph. It surfaces the connections you did not know to look for — not by keyword matching, but by meaning. The goal is the aha moment: "Your problem in domain A has the same structure as a solved problem in domain B, and the approach that worked there is directly applicable."
+
+## Usage
+
+```text
+/mos:find-connections
+/mos:find-connections "<concept or domain>"
+/mos:find-connections "<domain A> and <domain B>"
+```
+
+| Argument | Description |
+|---|---|
+| *(none)* | Infers the exploration target from your room's primary domain and problem definition |
+| `"<concept>"` | Searches for cross-domain connections anchored to a specific concept or domain |
+| `"<A> and <B>"` | Finds bridging concepts and frameworks that connect two named domains |
+
+<Warning>
+  This command requires Brain to be connected. Without Brain, cross-domain pattern discovery is unavailable. Run `/mos:setup brain` to configure Brain, or visit the Brain access page to get an API key.
+</Warning>
+
+## What Happens
+
+<Steps>
+  <Step title="Identify the exploration target">
+    If you provided a concept or domain with the command, Larry uses it directly. If no argument was given, Larry infers from room state — the venture's primary domain, key concepts from `problem-definition/`, or frameworks currently in use. If neither is available, Larry asks: "What concept or domain do you want to explore? Or tell me two fields and I'll find what bridges them."
+  </Step>
+  <Step title="Query immediate connections (Brain semantic search)">
+    Larry queries `brain_concept_connect` with your concept, pulling all immediate graph neighbors with their relationship types and confidence scores. This uses Brain's 12,485-vector semantic index across five namespaces — meaning-based matching, not keyword search.
+  </Step>
+  <Step title="Cross-domain bridge discovery">
+    If you provided two domains, Larry queries `brain_cross_domain` to find bridging concepts and frameworks that connect them through shared relationships. If only one domain was provided, Larry picks a surprising second domain from the first query's results and runs cross-domain to surface unexpected bridges.
+  </Step>
+  <Step title="Surface the aha moments">
+    Larry focuses on three types of insight:
+    - **Unexpected connections** — links between fields that seem unrelated on the surface
+    - **Bridging frameworks** — methodology frameworks that appear in both domains (structural similarities)
+    - **Analogy potential** — direct translation: "Your problem in [domain A] has the same structure as [problem] in [domain B]; the solution that worked there was [approach]"
+  </Step>
+  <Step title="Suggest next actions">
+    For each interesting connection found, Larry suggests the methodology command that could develop it further — build the analogy into a structured argument, trace a trend, dig into root cause, or map the domain intersection.
+  </Step>
+</Steps>
+
+## What the Brain Searches
+
+`/mos:find-connections` draws on Brain's semantic layer: 12,485 vectors across five namespaces at 1024 dimensions, covering the full teaching corpus.
+
+| Namespace | What it contains |
+|---|---|
+| `core` (8,555 vectors) | Core methodology and framework teaching material |
+| `materials` (1,775 vectors) | Teaching materials and curriculum content |
+| `reference` (1,690 vectors) | Reference frameworks and methodology documentation |
+| `tools` (242 vectors) | Tool and technique descriptions |
+| `graphrag` (144 vectors) | Graph-augmented retrieval corpus |
+
+Combined with the Brain's Neo4j framework graph (27,904 nodes, 19,987 relationships including 163 `FEEDS_INTO` framework-sequencing edges), the search finds not just what is semantically similar, but why things connect and what comes next.
+
+## Good Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Stuck on a problem" icon="circle-question">
+    When you have been working in one domain and cannot see a path forward, finding out how another field solved the structurally identical problem can unlock the next move.
+  </Card>
+  <Card title="Validating an analogy" icon="equals">
+    When you suspect your situation resembles a known pattern in another industry, this command confirms or refines that analogy with methodology-grounded evidence.
+  </Card>
+  <Card title="Discovering precedents" icon="clock-rotate-left">
+    When a solution seems novel, cross-domain search often surfaces historical precedents — times this problem was solved in a different context and what the outcomes were.
+  </Card>
+  <Card title="Bridging two fields" icon="bridge">
+    When your venture sits at the intersection of two domains, this command maps the frameworks that already operate in both, giving you a methodology vocabulary for the intersection.
+  </Card>
+</CardGroup>
+
+## Tier 0 Behavior (Without Brain)
+
+Without Brain connected, `/mos:find-connections` cannot run its semantic cross-domain search. The command will tell you: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up."
+
+The five commands that lose enrichment without Brain are listed in the troubleshooting guide. All other commands — including `/mos:research`, `/mos:graph`, `/mos:opportunities`, and `/mos:qualify-opportunity` — continue working fully without Brain.
+
+## Examples
+
+```text
+# Infer the exploration target from your room
+/mos:find-connections
+
+# Search for cross-domain connections anchored to a specific challenge
+/mos:find-connections "pricing model for two-sided marketplace"
+
+# Find what bridges two specific domains
+/mos:find-connections "healthcare and gaming"
+
+# Explore a methodology concept
+/mos:find-connections "jobs to be done in regulated industries"
+```
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:graph" href="/commands/graph">
+    Query the local room graph for connections already filed across your artifacts.
+  </Card>
+  <Card title="/mos:research" href="/commands/research">
+    Pull fresh web evidence on the analogy or bridge domain that find-connections surfaced.
+  </Card>
+  <Card title="/mos:opportunities" href="/commands/opportunities">
+    Scan for funding opportunities after cross-domain discovery reveals a new angle.
+  </Card>
+  <Card title="/mos:qualify-opportunity" href="/commands/qualify-opportunity">
+    Qualify a candidate opportunity that a cross-domain connection helped surface.
+  </Card>
+</CardGroup>

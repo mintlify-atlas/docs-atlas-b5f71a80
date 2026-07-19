@@ -1,0 +1,134 @@
+---
+title: "/mos:graph — Query the Room Knowledge Graph"
+sidebarTitle: "graph"
+description: "/mos:graph lets you ask natural-language questions against your room's SQLite knowledge graph — surfaces connections, contradictions, and gaps across all filed artifacts."
+---
+
+When you want to ask the knowledge graph a question without writing SQL, `/mos:graph` translates plain English into the right traversal. Larry walks the edges so you do not have to. The graph builds automatically as you use your room — every filing from every command wires typed nodes and edges into the local SQLite database. No manual graph construction needed; the intelligence accumulates as you work.
+
+## Usage
+
+```text
+/mos:graph "<natural language question>"
+/mos:graph --derive
+```
+
+| Argument | Description |
+|---|---|
+| `"<question>"` | A plain-English question about your room's knowledge graph |
+| `--derive` | Run the HEAL-FIRST backfill — wires an existing room and its sub-rooms in one pass |
+
+## The Room Graph
+
+The room graph is a SQLite database at `room/.room-graph/room.db`. It is the local, private accumulation of everything Larry has filed into your room — artifacts, sections, claims, evidence, and the typed relationships between them.
+
+<Note>
+  All graph reads and writes are strictly local. Zero room data reaches the Brain. The Brain (Neo4j + Pinecone) holds methodology intelligence — your room data never crosses that boundary.
+</Note>
+
+### Typed Edge Vocabulary
+
+| Edge type | Meaning |
+|---|---|
+| `INFORMS` | One node contributes evidence or reasoning to another |
+| `CONTRADICTS` | Two nodes make conflicting claims |
+| `CONVERGES` | Multiple nodes independently support the same conclusion |
+| `INVALIDATES` | One node renders another's claim no longer valid |
+| `ENABLES` | One node is a prerequisite for or unlocks another |
+| `REJECTED_BECAUSE` | A rejected finding or candidate, with the captured reason scalar |
+| `SUPERSEDES` | A higher-tier source replaces a weaker prior claim |
+| `BELONGS_TO` | An artifact or claim belongs to a section |
+
+## What Happens
+
+<Steps>
+  <Step title="Pre-flight check">
+    Larry checks that `room/.room-graph/room.db` exists. If the graph is empty or missing, it explains how to start building it: "The graph builds as you file content — meetings, documents, methodology sessions."
+  </Step>
+  <Step title="Graph stats on first invocation">
+    On first use, Larry surfaces a summary: total node count, edge count, and section coverage. This orients you before you start querying.
+  </Step>
+  <Step title="Natural language to SQL translation">
+    Your question is translated into a SQL query against the graph schema. Common patterns:
+    - "What connects X to Y?" → edges between sections X and Y
+    - "Where are the contradictions?" → edges where `type = 'CONTRADICTS'`
+    - "Which sections are most connected?" → edge count per section, ordered by frequency
+    - "What are the gaps?" → sections with few or no outbound edges
+  </Step>
+  <Step title="Results presented as room cards">
+    Results are never raw query output. Each match surfaces as a card showing the node title, section, relationship type, and a plain-English explanation of the connection in your venture context.
+  </Step>
+  <Step title="Next-move suggestion">
+    After results, Larry suggests the most useful next action — a follow-up query, a related command, or an invitation to derive new typed edges via `/mos:graph --derive`.
+  </Step>
+</Steps>
+
+## Example Queries
+
+```text
+# Find the weakest assumption in your financial model
+/mos:graph "what is the weakest assumption in my financial model?"
+
+# Surface all contradictions in the market section
+/mos:graph "show me all CONTRADICTS edges in the market section"
+
+# Find what connects two sections
+/mos:graph "what connects problem-definition to market-analysis?"
+
+# Find coverage gaps
+/mos:graph "which sections have the fewest connections?"
+
+# Find topics that appear across multiple sections
+/mos:graph "what topics appear in 3 or more sections?"
+```
+
+## The `--derive` Backfill
+
+`/mos:graph --derive` wires an existing room and all its sub-rooms in one pass. It is the universal net for surfaces where automatic graph hooks do not fire (Desktop / Cowork).
+
+The backfill runs in a strict HEAL-FIRST sequence:
+
+<Steps>
+  <Step title="Step 0 — GDH-08 self-heal">
+    Detects any artifact-bearing folder that lacks its own `.room-root` sentinel. For each one found, Larry surfaces a Decision Gate card per folder — APPROVE, REJECT (with reason), or DEFER. Only approved folders are healed. A rejected folder is surfaced but left untouched.
+  </Step>
+  <Step title="Step 1 — resolve">
+    Resolves the now-sentineled room by `resolveRoomRoot`.
+  </Step>
+  <Step title="Step 2 — rebuild transitively">
+    Rebuilds the graph root-files-aware, non-.md-aware (`.docx` / `.html` via the local extractor), and sub-room recursive at arbitrary depth.
+  </Step>
+  <Step title="Step 3 — derive per room and sub-room">
+    Calls `runDerivation` once per room and per healed sub-room. The default deriver is score-based (not regex keyword matching) — it emits `CONVERGES` and `INFORMS` edges from real semantic similarity. All derived edges land as `proposed`, pending your confirmation at the gate.
+  </Step>
+  <Step title="Step 4 — report the delta">
+    Reports typed-edge count before and after: "Wired [parent] and [K] sub-rooms. Typed edges: [before] → [after]. [N] new relationships are PROPOSED — review and confirm at the gate."
+  </Step>
+</Steps>
+
+<Tip>
+  The `--derive` backfill is idempotent — re-running it is a no-op. An already-healed room keeps its `.room-root` sentinel, and the deriver's pre-propose guard never mints duplicate proposed nodes or downgrades confirmed ones.
+</Tip>
+
+## With Brain: Methodology-Level Queries
+
+When Brain is connected, you can also run Cypher queries directly against the methodology graph via `/mos:graph`'s Brain integration — surfacing framework chains, prerequisite relationships, and methodology-level connections alongside your local room data.
+
+Without Brain, queries run on the local SQLite graph only. All room-level analysis — contradictions, gaps, cross-section connections — works fully in Tier 0.
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:research" href="/commands/research">
+    Wire new EvidenceClaim nodes and typed edges into the graph via web research.
+  </Card>
+  <Card title="/mos:find-connections" href="/commands/find-connections">
+    Use Brain semantic search to surface non-obvious cross-domain patterns in the graph.
+  </Card>
+  <Card title="/mos:opportunities" href="/commands/opportunities">
+    Browse the Opportunity Bank, which also lives as typed nodes in the room graph.
+  </Card>
+  <Card title="/mos:qualify-opportunity" href="/commands/qualify-opportunity">
+    Review qualification history and REJECTED_BECAUSE edges filed to the graph.
+  </Card>
+</CardGroup>

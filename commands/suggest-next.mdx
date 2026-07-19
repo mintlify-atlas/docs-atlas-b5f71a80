@@ -1,0 +1,131 @@
+---
+title: "/mos:suggest-next — Get Your Next Framework Move"
+sidebarTitle: "suggest-next"
+description: "/mos:suggest-next reads your room's problem type and active JTBD, then recommends the next framework chain and its /mos: commands via the Brain FEEDS_INTO graph."
+---
+
+When you finish a step and want Larry to recommend the next move, `/mos:suggest-next` reads the room graph and proposes 3–5 options with reasons. This is the Navigation Engine made visible — the same signal that guides Larry's suggestions throughout every session, surfaced as a transparent ranked list you can act on directly.
+
+## Usage
+
+```
+/mos:suggest-next
+```
+
+## What happens
+
+<Steps>
+  <Step title="Read room state">
+    Larry reads `room/STATE.md` for the active `ProblemType`, active JTBD, and the methodology sections that already exist. This is the input to the recommendation engine — not memory, not a guess.
+  </Step>
+  <Step title="Run the command resolver">
+    The helper script reads the room state and calls `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` — a `FEEDS_INTO` traversal through the Brain's framework graph. It then composes that chain into actual `/mos:` commands via `lib/workflow/command-resolver.cjs` `composeWorkflow`, reading only the local `data/command-registry.json`.
+  </Step>
+  <Step title="Query Brain for co-occurrence patterns (Brain mode only)">
+    When Brain MCP is connected, Larry additionally queries `brain_find_patterns` to surface frameworks that commonly co-occur with the current set — drawing on real venture patterns across 100+ projects.
+  </Step>
+  <Step title="Synthesize and rank">
+    Recommendations are ranked by confidence score from the framework chain, problem-type alignment, and co-occurrence patterns. Each recommendation names the framework AND the resolved `/mos:` command.
+  </Step>
+  <Step title="Present the ranked list and F-Selector">
+    Larry presents a brief narrative framing, then closes with a live F.1 selector: top-3 next-move commands with accept, defer, reject, and none-fit affordances. You pick a move — Larry runs it in the same turn.
+  </Step>
+</Steps>
+
+## The resolver guarantee
+
+<Warning>
+  Larry **never** names a `/mos:` command from memory. Every command surfaced by `/mos:suggest-next` comes from the resolver via `data/command-registry.json` — a generated, CI-enforced registry built from command frontmatter. This eliminates the hallucinated-command failure mode: `composeWorkflow(["Jobs to Be Done (JTBD)"])` returns `/mos:analyze-needs`, not a command Larry invented.
+</Warning>
+
+If a framework in the recommended chain has no corresponding `/mos:` command yet, the resolver renders it as:
+
+```
+(no /mos: for this — run it manually)
+```
+
+The suggestion degrades to a true statement. It never fabricates.
+
+## Outputs
+
+- **Top-3 next-move commands**, ranked with confidence scores and relationship types from the FEEDS_INTO graph (e.g., *"Explore Domains FEEDS_INTO Analyze Needs with 0.85 confidence"*)
+- **Accept / defer / reject / none-fit affordances** — the F.1 selector closes every response
+- **Decision capture**: each accepted or rejected suggestion is recorded as a `memory_event` and a typed cascade edge in the room graph (`DEFERRED` or `REJECTED`), so the pattern becomes part of your venture's decision history
+
+## Tier 0 behavior (no Brain)
+
+When Brain MCP is not connected, the resolver still produces a valid command sequence from the local `data/command-registry.json`. Framework-only advice degrades gracefully — the output is still resolver-composed, still true, still actionable. The deeper co-occurrence narrative and confidence scores from the live graph are skipped; the command sequence stands.
+
+```
+Brain not connected — using local registry (Tier 0)
+
+Recommended chain (from local registry):
+  1. /mos:explore-domains   → maps the problem landscape
+  2. /mos:analyze-needs     → surfaces unmet jobs from sub-domains
+  3. /mos:minto             → structures your thesis
+
+[accept] [defer] [reject] [none fit — tell me more]
+```
+
+## When the room is empty
+
+If no frameworks have been applied yet, Brain queries are skipped — there's no input signal to traverse from. Larry recommends the standard starting points instead:
+
+```
+Room is empty — no frameworks applied yet.
+
+Start here:
+  /mos:diagnose           → classify the problem type
+  /mos:beautiful-question → begin exploration
+
+suggest-next becomes more powerful as the room fills up.
+```
+
+## Example
+
+```
+/mos:suggest-next
+```
+
+Larry reads `room/STATE.md` (ProblemType: `ill-defined`, active JTBD: *IT integration bottleneck*), traverses the FEEDS_INTO graph, and returns:
+
+```
+Based on where you are, here's what I'd focus on next —
+and the graph backs this up.
+
+You've mapped sub-domains with Domain Explorer. The graph
+shows two strong FEEDS_INTO edges from here:
+
+  1. /mos:analyze-needs   [0.85 confidence]
+     JTBD turns your sub-domains into real personas with
+     unmet jobs — the logical next sharpening step.
+
+  2. /mos:six-hats        [0.72 confidence]
+     Bono puts each sub-domain through six lenses; hat
+     insights then feed directly into your Minto pyramid.
+
+  3. /mos:minto           [0.61 confidence]
+     If you're ready to frame a thesis, Minto structures
+     the logical argument from what you already have.
+
+── Next move ──────────────────────────────────────────
+[/mos:analyze-needs]  [/mos:six-hats]  [/mos:minto]
+[none fit — something else]
+```
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:pipeline" href="/commands/pipeline">
+    Run the full recommended chain end-to-end instead of step by step.
+  </Card>
+  <Card title="/mos:grade" href="/commands/grade">
+    Score the room first — a low component score sharpens what suggest-next recommends.
+  </Card>
+  <Card title="/mos:status" href="/commands/status">
+    See the room's current health before deciding which direction to move.
+  </Card>
+  <Card title="/mos:grade" href="/commands/grade">
+    Score room quality — grade results feed suggest-next's room-state assessment.
+  </Card>
+</CardGroup>

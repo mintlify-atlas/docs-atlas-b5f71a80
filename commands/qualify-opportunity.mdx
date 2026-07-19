@@ -1,0 +1,102 @@
+---
+title: "/mos:qualify-opportunity — Judge a Grant at a Card"
+sidebarTitle: "qualify-opportunity"
+description: "/mos:qualify-opportunity presents a structured qualification card for a surfaced opportunity. Approve triggers deep research; Reject records the reason; Defer holds it."
+---
+
+When the harvest sensor surfaces a candidate, `/mos:qualify-opportunity` puts the decision where it belongs — with you. The card shows WHY the candidate qualified: the Q1–Q8 rubric verdicts plus machine-readiness components, so you learn the qualification tests while you decide. Rejection teaches as much as approval — a Skip becomes graph data the ranker learns from. Nothing files without your explicit verb.
+
+## Usage
+
+```text
+/mos:qualify-opportunity
+/mos:qualify-opportunity review
+```
+
+This command is typically triggered automatically when `/mos:opportunities scan` surfaces a candidate, or you can invoke it directly to work through any pending harvested candidates in the queue.
+
+## The Qualification Card
+
+Each candidate surfaces as a structured card showing two layers of evidence:
+
+<CardGroup cols={2}>
+  <Card title="Q1–Q8 Rubric Verdicts" icon="list-check">
+    The eight human qualification checks: friction, connection, surprise, timing, actor fit, definability, newness, and desirability. Pedagogy over verdict — you see the reasoning behind each check, not just a score.
+  </Card>
+  <Card title="Component Readiness (D-18)" icon="gauge">
+    Machine readiness from existing measured signals: critic gate, compression, portfolio, tail flag, evidence readiness, and follow-through readiness. A missing input renders as `unknown` — never a fabricated zero.
+  </Card>
+</CardGroup>
+
+The card also shows the advisory `HarvestIndex_v1` score (marked EXPERIMENTAL), which combines rubric and readiness signals into a single ranking hint.
+
+## The Three Decisions
+
+<Steps>
+  <Step title="Qualify+file — approve and advance">
+    Confirms the node as a human-promoted opportunity, advances its lifecycle to `qualified`, and files a bank entry. This is the only path that moves a candidate into the Opportunity Bank. After qualification, the opportunity waits in the bank until you explicitly trigger Explore.
+  </Step>
+  <Step title="Skip — reject with a reason">
+    Writes a `REJECTED_BECAUSE` edge to the local graph with the failed-check reason. The node stays `proposed` and never resurfaces in future scans. The ranker learns from why-not as much as from yes.
+
+    Skip reasons use a closed enum: `q1_no_friction | q3_within_cluster | q4_stale_window | q5_no_actor | q7_already_filed | q8_disqualified | off_topic`
+  </Step>
+  <Step title="Defer — hold for later">
+    Holds the candidate without writing a rejection edge. It remains in the pending queue for a future qualification session.
+  </Step>
+</Steps>
+
+## Additional Card Verbs
+
+Beyond the three primary decisions, the card also offers:
+
+| Verb | What it does |
+|---|---|
+| **Ask Brain** | Consults the teaching graph using generic framework handles only — no candidate prose crosses the wire. Recommended rather than triggered when Brain is absent. |
+| **Rephrase** | Hands the candidate back for re-titling before you decide. |
+| **Suggest next** | Moves to the next-ranked candidate without deciding on the current one. |
+
+## The Explore Action
+
+<Warning>
+  Qualify and Explore are separate, explicit actions. Qualifying an opportunity does **not** auto-fire deep research — that is a deliberate cost-control boundary. A qualified opportunity waits in the bank until you explicitly trigger its exploration.
+</Warning>
+
+After you qualify an opportunity, the Explore action fetches web sources, cites them, and files the research in your opportunity bank. This is the path that turns a qualified candidate into cited deep-research evidence. It is always initiated by you — never automatic.
+
+## Why Rejection is Data
+
+A Skip is not a dead end. When you reject a candidate, the reason becomes a typed `REJECTED_BECAUSE` edge in the room graph. Future scans are smarter because of it — the ranker learns from the why-not signal, and rejected candidates never resurface. The more you qualify and skip, the more precisely the scanner targets opportunities that fit your room.
+
+## Engine-Unavailable Fallback (D-20)
+
+If the harvest engine cannot run (probe failures, missing substrate), the card offers one extra verb: **[LLM manual scan (high effort)]**. On acceptance, the model reads room artifacts directly and scores candidates against the same Q1–Q8 rubric.
+
+This is never the default and never a silent substitution. Every manual result carries `engine_mode: llm_manual_baseline` in node properties, the report provenance, and the bank entry frontmatter. Manual results are excluded from calibration sets.
+
+## Example
+
+```text
+# Work through pending qualification candidates
+/mos:qualify-opportunity
+
+# Explicit review mode
+/mos:qualify-opportunity review
+```
+
+## Related Commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:opportunities" href="/commands/opportunities">
+    Scan for grant candidates and manage the Opportunity Bank pipeline.
+  </Card>
+  <Card title="/mos:research" href="/commands/research">
+    Pull fresh web evidence to strengthen a qualified opportunity before Explore.
+  </Card>
+  <Card title="/mos:graph" href="/commands/graph">
+    Query the qualification history — see REJECTED_BECAUSE edges and qualification trails.
+  </Card>
+  <Card title="/mos:find-connections" href="/commands/find-connections">
+    Surface cross-domain analogies that might reframe an opportunity's fit.
+  </Card>
+</CardGroup>

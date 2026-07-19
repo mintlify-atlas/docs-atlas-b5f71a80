@@ -1,0 +1,178 @@
+---
+title: "Install MindrianOS — Three Ways"
+sidebarTitle: "Installation"
+description: "Install MindrianOS via npm, the Claude plugin marketplace, or a shell script. Includes update, repair, and first-launch notes."
+---
+
+MindrianOS ships as a Claude Code plugin and can be installed three ways: the npm one-liner (recommended for most users), the Claude plugin marketplace directly, or a shell script for manual and dev-clone installs. All three paths produce the same result — the same Larry, the same room, the same hooks on session start.
+
+<Note>
+  MindrianOS requires a paid Claude plan. Claude Pro ($20/mo) is the minimum. The free tier does not support the extended context and tool-use capabilities that MindrianOS depends on.
+</Note>
+
+## Requirements
+
+- **Node.js ≥ 22.5.0** — check with `node --version`. The `engines` field in the package enforces this floor.
+- **Claude Code CLI on PATH** — the installer drives Claude Code's own plugin system. Run `claude --version` to confirm it is available. If it is missing, install it with `npm install -g @anthropic-ai/claude-code`.
+
+## Install
+
+<Tabs>
+  <Tab title="npm (recommended)">
+    The npm package is the verb: running it with no subcommand performs the install. This is the recommended path for all new installs.
+
+    ```bash
+    npx @mindrian_os/cli
+    ```
+
+    **What the installer does, in order:**
+
+    1. Confirms the `claude` CLI is on your PATH
+    2. Registers the Mindrian plugin marketplace (`jsagir/mindrian-marketplace`)
+    3. Refreshes the marketplace catalog so the current release resolves
+    4. Runs `claude plugin install mos@mindrian-marketplace`
+    5. Runs `claude plugin update mos@mindrian-marketplace` to bring the plugin to the latest build
+
+    Steps 2 and 3 are idempotent — running the installer again on an already-installed system is safe and will bring the plugin current.
+
+    **Pin a specific version** by passing `--version`:
+
+    ```bash
+    npx @mindrian_os/cli --version 1.13.0-beta.9
+    ```
+
+    When a version is pinned, the update step is skipped so the plugin stays at the version you specified.
+  </Tab>
+
+  <Tab title="Plugin marketplace">
+    If you prefer to drive Claude Code's plugin system manually, you can register the marketplace and install the plugin yourself:
+
+    ```bash
+    claude plugin marketplace add jsagir/mindrian-marketplace
+    claude plugin install mos@mindrian-marketplace
+    ```
+
+    To bring it to the current build after initial install:
+
+    ```bash
+    claude plugin marketplace update
+    claude plugin update mos@mindrian-marketplace
+    ```
+
+    This is the same sequence the npm installer runs — just without the wrapper.
+  </Tab>
+
+  <Tab title="Shell script">
+    The shell installer clones the repository directly into `~/.claude/plugins/mindrian-os`, installs npm dependencies, registers commands, skills, and agents as symlinks, and writes the session-start hooks into `~/.claude/settings.json`.
+
+    ```bash
+    curl -sL https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/install.sh | bash
+    ```
+
+    Or, if you have already cloned the repo:
+
+    ```bash
+    git clone https://github.com/jsagir/mindrian-os-plugin.git
+    cd mindrian-os-plugin
+    bash install.sh
+    ```
+
+    <Warning>
+      The shell installer requires `git` in addition to `node`. On Windows, run this from a Git Bash prompt — the installer enables `core.longpaths` globally to handle deeply-nested paths during the clone.
+    </Warning>
+
+    The shell path is best suited for development, contributing to the plugin, or situations where the npm/marketplace paths are unavailable.
+  </Tab>
+</Tabs>
+
+## First launch
+
+After install, **restart Claude Code completely** before opening a session. The hooks that load your room context and activate Larry fire on session start (`SessionStart` hook) — they will not activate in a session that was open during install.
+
+On first launch, Claude Code may present permission prompts for the shell commands that MindrianOS uses during session setup. **10 or more prompts is normal.** For any command you are comfortable with, choose **"Always allow"** — that permission will not re-prompt again. For zero prompts on every subsequent session, you can start Claude Code with:
+
+```bash
+claude --dangerously-skip-permissions
+```
+
+The read/write surface is bounded to your workspace and your rooms at `~/MindrianRooms/`. For granular control without skipping all permissions, copy the matcher set from `docs/settings-template.json` in the plugin repo into `~/.claude/settings.json`.
+
+## Update
+
+<CodeGroup>
+  ```bash Marketplace install
+  mindrian-os update
+  ```
+
+  ```bash Dev clone (MINDRIAN_OS_ROOT set)
+  # git pull + re-run install.sh (handled automatically)
+  mindrian-os update
+  ```
+
+  ```bash Manual marketplace commands
+  claude plugin marketplace update
+  claude plugin update mos@mindrian-marketplace
+  ```
+</CodeGroup>
+
+For a marketplace install, `mindrian-os update` refreshes the catalog and runs `claude plugin update`. For a dev clone (where `MINDRIAN_OS_ROOT` is set or a `.git` directory is detected), it runs `git pull --ff-only` followed by `bash install.sh` in the install directory.
+
+## Repair and diagnostics
+
+Run the diagnostics CLI outside of Claude Code to catch install drift before a session:
+
+```bash
+mindrian-os doctor --all
+```
+
+This resolves the active plugin root, then runs the same diagnostic script that `/mos:doctor` uses inside Claude Code. It checks commands, skills, agents, hooks, the statusline block, and (optionally) the Brain connection. If MindrianOS is not installed, it says so plainly instead of throwing a stack trace.
+
+You can also run diagnostics from inside a Claude Code session:
+
+```bash
+/mos:doctor
+/mos:doctor --brain-smoke   # includes a 5-layer Brain connection probe
+```
+
+## Advanced configuration
+
+**`MINDRIAN_OS_ROOT` environment variable**
+
+For dev clones or non-standard install paths, set `MINDRIAN_OS_ROOT` to the absolute path of your MindrianOS directory. The CLI and the plugin both read from this variable first. When it is set, `mindrian-os update` uses the git-pull path instead of the marketplace path.
+
+```bash
+export MINDRIAN_OS_ROOT="/path/to/mindrian-os-plugin"
+```
+
+**Brain API key**
+
+The Brain is an optional shared teaching graph (Neo4j + Pinecone) that enriches framework chaining and cross-project semantic search. Without a key, MindrianOS operates at Tier-0 (local only) — all rooms, all commands, all Larry intelligence, just without the methodology orchestration layer.
+
+To connect the Brain after install:
+
+```bash
+echo "MINDRIAN_BRAIN_KEY=<your-key>" > ~/.mindrian.env
+chmod 600 ~/.mindrian.env
+```
+
+Then restart Claude Code. Alternatively, run `/mos:setup` inside a session and choose "Configure Brain."
+
+<Tip>
+  Request a Brain API key at [mindrian-os.com/brain-access](https://mindrian-os.com/brain-access). The Brain never sees your room content — queries carry methodology questions only, never your notes, decisions, or meeting transcripts.
+</Tip>
+
+**`claude --dangerously-skip-permissions`**
+
+For a zero-prompt session experience, start Claude Code with this flag. The plugin's read/write surface is bounded to your workspace and `~/MindrianRooms/`, so the risk surface is well-defined.
+
+## Troubleshooting
+
+If commands are not recognized or the plugin appears missing after install, the most common fix is a full reinstall:
+
+```bash
+claude plugin marketplace remove mindrian-marketplace
+claude plugin marketplace add jsagir/mindrian-marketplace
+claude plugin install mos@mindrian-marketplace
+```
+
+Then restart Claude Code. For persistent issues, run `mindrian-os doctor --all` and check the output for the specific failing step.

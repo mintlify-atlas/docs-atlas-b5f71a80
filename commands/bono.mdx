@@ -1,0 +1,126 @@
+---
+title: "/mos:bono — Six-Hats Debate Team on Your Question"
+sidebarTitle: "bono"
+description: "/mos:bono assembles a six-hat research-and-debate team (de Bono's Six Thinking Hats) to examine your question from six perspectives simultaneously."
+---
+
+When you have a wicked question and need a structured argument rather than one opinion, `/mos:bono` spawns a **governed research swarm** across the subdomain × hat grid — each persona bound to its hat's scrutiny discipline and its own wired sources — then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the topic, the hypothesis, and the ruling at three decision gates; the MECE-Minto synthesis files only on APPROVE and closes the loop into the room's logical graph. This is not a brainstorm; it is a structured governed debate where every claim must be supported by evidence the hat was wired to at research time.
+
+## Usage
+
+```
+/mos:bono
+```
+
+No arguments. Larry opens with a Shape F.1 selector to confirm the topic, scope, and debate purpose before any research fires. The three decision gates — topic-confirm, hypothesis-confirm, and ruling — are the cost brakes: the research fan does not launch until the grid is scoped, and the debate does not begin until the what-if hypothesis is anchored.
+
+<Note>
+  `/mos:bono` is not `autonomous_safe`. It halts at three navigator decision gates and will not proceed without your confirmation at each one. No web research fires until after topic-confirm.
+</Note>
+
+## The six hats
+
+Each hat is a distinct scrutiny discipline — not a personality, a lens:
+
+| Hat | Colour | Discipline |
+|-----|--------|------------|
+| White | Facts | Cite-or-retract — only verifiable claims, all sourced |
+| Red | Emotions | Instincts and gut reads — no justification required |
+| Black | Critical | ACH disconfirming-first — argues what could go wrong |
+| Yellow | Optimistic | Evidence-backed value — argues what could go right |
+| Green | Creative | Provocation-marked — generates alternatives and inversions |
+| Blue | Process | Anti-convergence judge — ensures the debate stays rigorous |
+
+<Tip>
+  Black hat is always re-derived, never reused from a prior run. This is a hard anti-ossification guard — the critical perspective must be fresh for every debate.
+</Tip>
+
+## What happens
+
+<Steps>
+  <Step title="Topic-confirm gate (Gate 1)">
+    Larry renders a Shape F.1 selector gathering: the **scope** (domain / subdomain grid the swarm fans over), the **purpose** (decision, thesis stress-test, or reframing), the **substrates** (which evidence sources the cells may reach), and a **hypothesis seed** Larry surfaces from the room graph. Before rendering, Larry reads the active JTBD via `lib/hmi/jtbd-state.cjs` — a `validate-idea` job sharpens the grid toward the risky assumption; an `explore` job widens it. The navigator picks; the selection becomes a typed edge. No research fires until this gate clears.
+  </Step>
+  <Step title="Domain decomposition">
+    Larry runs Engine 1 decomposition over the confirmed scope to build the subdomain grid. Each subdomain becomes one axis of the subdomain × hat cell grid the parallel fan-out runs over.
+  </Step>
+  <Step title="Governed team assembly">
+    Larry assembles the persona roster using the Wave-2 library-first `assembleTeam`: confirmed `SyntheticExpert` nodes first, generated gaps second, with three anti-ossification guards — a mandatory fresh slot, Black always re-derived, and a reuse cap of K < N. Each persona slot then binds to `HAT_GOVERNANCE[hat]`'s scrutiny discipline. `assertHeterogeneity` runs over the assembled cells — if two cells share an identical lens, the duplicate slot is re-drawn before any research fires.
+  </Step>
+  <Step title="Per-persona parallel research fan">
+    The Wave-4 parallel `runCellFanout` launches over the subdomain × hat grid. Each cell runs `extractContext` → `runSourceLens` → `wireAccept`. A persona may not assert beyond its own wired source set. The `part8-egress-guard` is the fail-closed pre-egress gate: only the generic subdomain handle crosses toward the public web — LOCAL venture content never leaves the room.
+  </Step>
+  <Step title="Hypothesis-confirm gate (Gate 2)">
+    The flow halts so you can confirm or edit the graph-proposed what-if hypothesis. This is the anchor the debate argues over. The confirmed hypothesis becomes the `hypothesisId` all per-hat derived relationships bear on.
+  </Step>
+  <Step title="Governed sequential debate">
+    The collected cell array seeds the Wave-5 `runDebate`. Each hat argues its stance over its slice of the collected cells, governed by `enforceGovernance` and `validateCitations` — no hat may argue beyond its wired sources. The debate is sequential and never re-runs the research fan.
+  </Step>
+  <Step title="Ruling gate (Gate 3)">
+    Larry halts and emits a ruling verb: `supported`, `rejected`, `refined`, or `undecided`, plus a residual-tension record naming what the debate could not close.
+  </Step>
+  <Step title="MECE-Minto synthesis">
+    Larry applies Pyramid + MECE discipline to emit the conclusion as a `governing_thought` (≤ 250 chars) with 3–5 key claims. The `/mos:map-unknowns` Rumsfeld matrix produces the unknowns base — the open questions the debate could not close.
+  </Step>
+  <Step title="Close the loop and file">
+    One `writeCloseLoop` call carries claims, relations, the conclusion, knowns, unknowns, and opportunities. The artifact files to `room/solution-design/`. Every node is born `review_status: proposed` — the engines propose, the navigator ratifies.
+  </Step>
+</Steps>
+
+## Output / Artifacts
+
+The command produces a governed synthesis document filed to solution design:
+
+```
+room/solution-design/<topic-hash>/<timestamp>.md
+```
+
+The artifact contains:
+- **Per-hat research findings** — each hat's sourced claims from the research fan
+- **Inter-hat debate record** — the sequential argument chain with governance notes
+- **Ruling verdict** — `supported | rejected | refined | undecided` with residual tensions
+- **MECE-Minto synthesis** — governing thought + 3–5 key claims
+- **Unknowns matrix** — open questions from the debate, from the Rumsfeld base
+- **Opportunity nodes** — `proposed` opportunity entries for the bank
+
+## Pipeline position
+
+In the PWS methodology chain, `/mos:bono` sits between Domain Explorer and JTBD:
+
+```
+Domain Explorer sub-domains → /mos:bono (hats per perspective)
+                            ↓
+                    hat insights → /mos:jtbd (context per persona)
+                    hat insights → /mos:structure-argument (evidence for pyramid)
+```
+
+When Domain Explorer has already run and produced sub-domains, Larry seeds the hat grid from those sub-domains automatically.
+
+## Example
+
+```
+/mos:bono
+```
+
+Larry opens Gate 1. You confirm: scope is *enterprise procurement cycles in B2B SaaS*, purpose is *stress-test the hypothesis that 60-day procurement timelines are a myth for sub-$50K deals*. Larry seeds the hypothesis from a room entry.
+
+After the research fan completes across four sub-domains × six hats, Larry halts at Gate 2. You confirm the what-if: *"What if procurement timelines compress to under 30 days when the champion has budget authority?"* The debate runs. Black hat finds two disconfirming studies. White hat cites three confirming deal-log analyses. At Gate 3, Larry rules: **refined** — the hypothesis holds for champion-led deals but fails for committee-reviewed ones.
+
+Filed synthesis: governing thought + 4 key claims + 3 open unknowns routed to the unknowns matrix.
+
+## Related commands
+
+<CardGroup cols={2}>
+  <Card title="/mos:map-unknowns" href="/commands/map-unknowns">
+    Surface the confident-but-thin assumptions before scoping the debate grid.
+  </Card>
+  <Card title="/mos:jtbd" href="/commands/jtbd">
+    Run JTBD after Bono — hat insights become context per persona.
+  </Card>
+  <Card title="/mos:analyze-needs" href="/commands/analyze-needs">
+    Ground the debate topic in real customer jobs before the research fan fires.
+  </Card>
+  <Card title="/mos:beautiful-question" href="/commands/beautiful-question">
+    Reframe the wicked question before handing it to the debate engine.
+  </Card>
+</CardGroup>

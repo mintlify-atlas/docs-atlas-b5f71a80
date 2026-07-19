@@ -1,0 +1,146 @@
+{
+  "projectType": "framework",
+  "projectName": "MindrianOS",
+  "projectDescription": "A Claude Code plugin that delivers AI-powered venture thinking through Larry — a teaching partner that structures problem discovery, builds a persistent Data Room, and chains innovation methodologies using the PWS framework.",
+  "theme": "maple",
+  "primaryColor": "#cea279",
+  "lightColor": "#1d3e65",
+  "darkColor": "#84847c",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/larry",
+              "concepts/data-room",
+              "concepts/pws-methodology",
+              "concepts/three-surfaces"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/first-session",
+              "guides/opportunity-bank",
+              "guides/brain-setup",
+              "guides/conversation-modes"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/settings",
+              "configuration/hooks",
+              "configuration/privacy"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/troubleshooting",
+              "reference/changelog"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Commands",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "commands/overview"
+            ]
+          },
+          {
+            "group": "Room & Discovery",
+            "pages": [
+              "commands/ignite",
+              "commands/discover",
+              "commands/new-project",
+              "commands/room",
+              "commands/snapshot"
+            ]
+          },
+          {
+            "group": "Problem Framing",
+            "pages": [
+              "commands/beautiful-question",
+              "commands/analyze-needs",
+              "commands/map-unknowns",
+              "commands/bono",
+              "commands/jtbd"
+            ]
+          },
+          {
+            "group": "Research & Intelligence",
+            "pages": [
+              "commands/research",
+              "commands/opportunities",
+              "commands/qualify-opportunity",
+              "commands/graph",
+              "commands/find-connections"
+            ]
+          },
+          {
+            "group": "Grading & Strategy",
+            "pages": [
+              "commands/grade",
+              "commands/suggest-next",
+              "commands/pipeline",
+              "commands/status"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Larry — AI thinking partner built on PWS methodology by Prof. Lawrence Aronhime",
+    "Data Room — persistent, auto-organized workspace that captures every decision, meeting, and finding",
+    "Intelligence cascade — every new entry is compared against all existing room content for contradictions, gaps, and connections",
+    "Opportunity Bank — grant and funding discovery with HSI scoring and deep research filing",
+    "Brain — optional remote Neo4j/Pinecone teaching graph for framework chaining and semantic search",
+    "70+ slash commands, 66 MCP tools, 8 specialized agents, 9 lifecycle hooks",
+    "Three surfaces — Claude Code CLI, Claude Desktop, and Cowork (multi-user)",
+    "Privacy-first — room data never leaves the user's machine; Brain queries carry methodology only"
+  ],
+  "publicApiSurface": [
+    "/mos:ignite — start or excavate a room",
+    "/mos:discover — Larry-led client + product + JTBD discovery",
+    "/mos:beautiful-question — reframe the problem before solving it",
+    "/mos:analyze-needs — analyze who has the problem and how badly",
+    "/mos:bono — six-hats research-and-debate team",
+    "/mos:map-unknowns — surface the assumptions you are most confident about and wrong",
+    "/mos:research <url|topic> — web research wired as typed graph evidence",
+    "/mos:opportunities — Opportunity Bank with HSI scores",
+    "/mos:qualify-opportunity — judge a surfaced opportunity at a card",
+    "/mos:graph — query the room knowledge graph",
+    "/mos:grade — score problem-discovery quality on 6 components",
+    "/mos:deep-grade — calibrated grading from 100+ real projects via Brain",
+    "/mos:suggest-next — Brain-derived next-framework recommendation",
+    "/mos:pipeline — compose and run a framework chain",
+    "/mos:file-meeting — paste a transcript and auto-file it to the room",
+    "/mos:status — session state and room health",
+    "/mos:doctor — diagnose drift and suggest fixes",
+    "/mos:setup — configure Brain, surfaces, and environment",
+    "mindrian-os install — CLI installer (npx @mindrian_os/cli)",
+    "mindrian-os doctor — out-of-session diagnostics",
+    "mindrian-os update — bring MindrianOS current",
+    "brain_ask MCP tool — guided DirectiveEnvelope from the teaching graph",
+    "brain_query MCP tool — read-only Cypher against the methodology graph",
+    "brain_search MCP tool — semantic vector search across teaching materials",
+    "brain_stats MCP tool — Brain index health and corpus counts"
+  ]
+}

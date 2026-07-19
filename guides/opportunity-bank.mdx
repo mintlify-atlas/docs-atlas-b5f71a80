@@ -1,0 +1,148 @@
+---
+title: "Discover and Manage Grants with the Opportunity Bank"
+sidebarTitle: "Opportunity Bank"
+description: "MindrianOS's Opportunity Bank scans for grants, scores them with HSI, qualifies them at a card, and turns approved opportunities into cited deep research filed in your room."
+---
+
+The Opportunity Bank is not a list of grants you collected. It is a live pipeline that compares external funding opportunities against everything already in your room, scores them for fit, surfaces them for your decision, and — when you approve — turns them into cited deep research filed alongside your other room knowledge. Every stage requires an explicit human decision. Nothing enters the bank automatically.
+
+<Tip>
+Paste any URL with `/mos:research <url>` to add any web page as a cited source to your room. Larry fetches the page, presents a filing card, and wires your approval as a typed artifact with provenance — source URL, retrieval timestamp, and evidence tier included.
+</Tip>
+
+## How opportunities enter the bank
+
+Opportunities reach the bank through two distinct paths:
+
+<CardGroup cols={2}>
+  <Card title="Grant Discovery" icon="magnifying-glass">
+    `/mos:opportunities scan` reads your room's domain, geography, and venture stage, generates search queries from your specific context, and pulls matching opportunities from Grants.gov and Simpler Grants. Every result is scored for relevance to your room.
+  </Card>
+  <Card title="Intelligence Cascade" icon="arrows-spin">
+    When any methodology command triggers a room analysis, gaps, convergences, and contradictions are automatically extracted as bankable opportunities. These surface at a Decision Gate for your approval — they are never silently filed.
+  </Card>
+</CardGroup>
+
+## HSI scoring
+
+Every opportunity surfaces with an HSI (Human-Social Impact) score that ranks it relative to your room. The score reflects how closely the opportunity matches your problem domain, team profile, geography, and venture stage — not a generic relevance metric, but a fit score computed against your specific room context.
+
+Opportunities also carry a Knight position that classifies the type of uncertainty involved:
+
+| Knight Position | Meaning |
+|-----------------|---------|
+| `risk` | Known problem with quantifiable odds — a grant with defined criteria you either meet or don't |
+| `uncertainty` | Unknown problem requiring exploration — a gap or contradiction the room surfaced |
+| `mixed` | A contradiction that could resolve either way depending on what you learn next |
+
+## Scanning for grants
+
+```bash
+/mos:opportunities scan
+```
+
+Larry reads your `STATE.md` (domain, geography, venture stage) and your `problem-definition/` section to generate context-specific search queries. These are not hardcoded searches — they are derived from your room. A room in healthcare AI at pre-revenue stage in the northeastern US gets different queries than a room in agricultural logistics at Series A.
+
+After the scan, Larry presents results in a ranked table:
+
+```
+I found N opportunities relevant to your venture. Here are the top matches:
+
+| # | Funder | Program | Amount | Deadline | Relevance |
+|---|--------|---------|--------|----------|-----------|
+| 1 | ...    | ...     | ...    | ...      | 0.85      |
+
+What would you like to do?
+- File all — I'll file all opportunities to your opportunity-bank
+- Review individually — I'll walk through each one for your decision
+- Skip — No opportunities filed
+```
+
+This is the confirm-first pattern: Larry presents, you decide. Nothing is filed until you say so.
+
+## Qualifying an opportunity
+
+When the harvest sensor surfaces a candidate — from a scan, from a cascade, or from research you filed — run:
+
+```bash
+/mos:qualify-opportunity
+```
+
+Each candidate renders as a structured Decision Gate card showing you:
+
+- **Why it surfaced** — the Q1–Q8 rubric verdicts (friction, connection, surprise, timing, actor fit, definability, newness, desirability)
+- **Machine readiness signals** — compression score, portfolio fit, evidence readiness, follow-through readiness
+
+You have five verbs at the gate:
+
+| Verb | What it does |
+|------|--------------|
+| **Qualify + file** | Confirms the opportunity, advances it to `qualified`, files a bank entry |
+| **Ask Brain** | Consults the teaching graph with generic framework handles — methodology context only, never your room content |
+| **Rephrase** | Hands the candidate back for a re-title before you decide |
+| **Suggest next** | Moves to the next-ranked candidate |
+| **Skip** | Records a typed rejection reason; the candidate never resurfaces |
+
+Rejection is data. When you skip, Larry asks why. The reason is recorded as a graph edge and makes the next scan smarter.
+
+## The Explore move
+
+Qualifying an opportunity files it to the bank — it doesn't start the research. Exploration is a separate, explicit action:
+
+After a candidate is qualified, trigger the explore chain from its bank entry. Larry runs a full cited research chain on the opportunity: web sources are fetched, findings are compared against your room, contradictions and gaps are surfaced, and the results are filed as typed `EvidenceClaim` nodes with source provenance.
+
+```
+Source URL → cited artifact → compared against room → card surfaced → approved → filed to bank
+```
+
+Every step is disclosed. A failed fetch is a typed failure, not an empty result. A page that's already been ingested returns `no_op` with the prior artifact path. You always know exactly what the research ran against and what it found.
+
+## Managing the pipeline
+
+<Tabs>
+  <Tab title="List opportunities">
+    ```bash
+    /mos:opportunities list
+    ```
+
+    Shows all filed opportunities with status, Knight position, confidence score, and deadline. Filter by domain, Knight position, or minimum confidence:
+
+    ```bash
+    /mos:opportunities list --domain healthcare --knight uncertainty --min-confidence 0.7
+    ```
+  </Tab>
+  <Tab title="Add manually">
+    ```bash
+    /mos:opportunities add
+    ```
+
+    File an opportunity you found yourself. Larry walks you through the qualification card and files it with the same structure as a scan result.
+  </Tab>
+  <Tab title="Scan for grants">
+    ```bash
+    /mos:opportunities scan
+    ```
+
+    Runs a context-driven grant discovery scan against Grants.gov and Simpler Grants using your room's domain, geography, and venture stage as search parameters.
+  </Tab>
+</Tabs>
+
+## The funding pipeline
+
+Qualified opportunities can be advanced through a funding pipeline with explicit stages:
+
+```
+prospecting → applying → submitted → awarded / rejected / withdrawn
+```
+
+Each stage transition is a human decision. Larry surfaces what changed, what's still missing, and what the room already knows about this funder or program from prior research.
+
+## What the bank needs to work well
+
+If your room lacks domain context, Larry will tell you exactly what's missing before attempting a scan:
+
+- `domain_keywords` in `STATE.md` (e.g., `artificial-intelligence`, `healthcare`)
+- Content in `problem-definition/` describing your domain
+- `geography` in `STATE.md` for eligibility matching
+
+Run `/mos:status` to see what your room currently has, then add context before scanning.
