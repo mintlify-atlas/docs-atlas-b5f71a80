@@ -1,7 +1,7 @@
 ---
-title: "How Larry Shifts Conversation Modes"
+title: "How MindrianOS Conversation Modes Work with Larry Now"
 sidebarTitle: "Conversation Modes"
-description: "MindrianOS routes every message through an intent classifier that sets the conversation mode — JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE."
+description: "Every message is classified before Larry responds, setting one of five modes: JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE."
 ---
 
 The conversation is the whole interface — and it adapts to what you're actually doing. Every message you send is classified by intent before Larry responds, and that classification sets the conversation mode. You don't switch modes manually. Larry reads what you're describing, shifts the mode to match, and changes how he engages accordingly. A casual question gets a different Larry than an active room-building session, which gets a different Larry than a framework running to completion.
@@ -65,7 +65,7 @@ Choose next reach:
 
 The top recommendation carries a `RECOMMENDED` marker only when the Brain's confidence is 0.70 or higher. Below that threshold, the marker is absent — the card surfaces options without overclaiming.
 
-Selecting "none fit" routes you to `/mos:do` with your intent captured, so Larry can propose something else without losing what you were trying to accomplish.
+Selecting "none fit" records a ranker-miss with your intent captured, so Larry can propose something else without losing what you were trying to accomplish.
 
 ## The autonomy gate
 

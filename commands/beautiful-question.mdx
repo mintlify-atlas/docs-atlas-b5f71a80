@@ -1,7 +1,7 @@
 ---
 title: "/mos:beautiful-question — Reframe Before Solving"
-sidebarTitle: "beautiful-question"
-description: "/mos:beautiful-question runs the Beautiful Question reframing methodology — Larry challenges your problem statement and surfaces the real problem beneath the stated one."
+sidebarTitle: "Beautiful Question"
+description: "/mos:beautiful-question walks the Why / What-if / How reframing sequence — Larry challenges your problem statement until the real question is visible."
 ---
 
 When the framing feels stuck, `/mos:beautiful-question` reshapes the challenge as **Why / What-if / How**. The right question unlocks more progress than a better answer. Rather than jumping to solutions, this command walks you through a structured reframing progression — first asking *why* the problem is the problem, then inverting assumptions with *what-if*, and finally opening toward *how* once the real challenge is visible. It is the first move in the PWS methodology's problem-definition stage: reframe before you solve.
@@ -16,6 +16,10 @@ No arguments required. Larry reads `room/STATE.md` for venture context and opens
 
 <Note>
   **Best time to use it:** When the problem statement you're working from feels borrowed, inherited, or like a symptom rather than a root. If you have already tried to solution and the answer didn't hold, start here.
+</Note>
+
+<Note>
+  `autonomous_safe: true` — this command runs the Beautiful Question Framework without requiring human confirmation gates. It will file the artifact only after asking for your approval.
 </Note>
 
 ## What happens
@@ -60,7 +64,7 @@ The artifact contains:
 - **How pointers** — suggested next methodology moves
 
 <Tip>
-  The reframed problem statement becomes the anchor for downstream commands. `/mos:analyze-needs` and `/mos:jtbd` both read problem-definition entries to orient their analysis.
+  The reframed problem statement becomes the anchor for downstream commands. `/mos:analyze-needs` reads problem-definition entries to sharpen job scoring, and `/mos:jtbd set find-problem` orients the room's active job signal for the session.
 </Tip>
 
 ## Example

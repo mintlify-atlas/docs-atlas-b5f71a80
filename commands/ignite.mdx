@@ -1,10 +1,10 @@
 ---
-title: "/mos:ignite — Start or Excavate a Room"
-sidebarTitle: "ignite"
+title: "/mos:ignite — Start or Excavate a Room in One Step"
+sidebarTitle: "Ignite"
 description: "/mos:ignite is the front door for room creation. Three birth gates — starting point, blueprint approve, first win — initialize the Data Room."
 ---
 
-`/mos:ignite` is the canonical front door for starting a new room or returning to an existing one. It walks you through three birth gates — starting point, blueprint approval, and first win — and delegates the room scaffold to `/mos:new-project` behind the scenes. You never need to touch the scaffold directly; ignite handles everything.
+`/mos:ignite` is the canonical front door for starting a new room or returning to an existing one. Larry walks you through three birth gates — starting point, blueprint approve, and first win — so every new room begins with a clear JTBD, the right section set, and one bankable opportunity. The room scaffold is delegated to `/mos:new-project` behind the scenes; you never need to touch it directly.
 
 <Tip>
   Use `/mos:ignite` rather than `/mos:new-project` directly. Ignite gives you the full first-cycle experience: persona pick, blueprint approval, and a bankable first opportunity before you leave the gate.
@@ -50,7 +50,7 @@ Three actions are available from the chooser:
 
 ## After Ignite
 
-Once B3 completes, the room lives at `~/MindrianRooms/<slug>/` with its SQLite knowledge graph initialized at `room/.room-graph/room.db`. All future Larry commands work against that room until you switch or create another.
+Once B3 completes, the room lives at `~/MindrianRooms/<slug>/` with its SQLite knowledge graph initialized (`room.db` created, focus set, registry flipped to live). All future Larry commands work against that room until you switch or create another.
 
 ## Usage
 
@@ -67,6 +67,11 @@ Once B3 completes, the room lives at `~/MindrianRooms/<slug>/` with its SQLite k
 ```bash
 # Start from a brief generated in a prior session
 /mos:ignite --from-brief a3f9c1d2
+```
+
+```bash
+# Start from a banked opportunity (umbilical path — skips B1)
+/mos:ignite --from-opportunity <ref>
 ```
 
 <Note>

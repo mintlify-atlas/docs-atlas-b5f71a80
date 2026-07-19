@@ -1,7 +1,7 @@
 ---
 title: "/mos:graph — Query the Room Knowledge Graph"
 sidebarTitle: "graph"
-description: "/mos:graph lets you ask natural-language questions against your room's SQLite knowledge graph — surfaces connections, contradictions, and gaps across all filed artifacts."
+description: "/mos:graph translates plain-English questions into room graph queries — surfaces connections, contradictions, and gaps across your filed artifacts."
 ---
 
 When you want to ask the knowledge graph a question without writing SQL, `/mos:graph` translates plain English into the right traversal. Larry walks the edges so you do not have to. The graph builds automatically as you use your room — every filing from every command wires typed nodes and edges into the local SQLite database. No manual graph construction needed; the intelligence accumulates as you work.
@@ -20,7 +20,7 @@ When you want to ask the knowledge graph a question without writing SQL, `/mos:g
 
 ## The Room Graph
 
-The room graph is a SQLite database at `room/.room-graph/room.db`. It is the local, private accumulation of everything Larry has filed into your room — artifacts, sections, claims, evidence, and the typed relationships between them.
+The room graph is a SQLite database at `room/.mindrian/room.db`. It is the local, private accumulation of everything Larry has filed into your room — artifacts, sections, claims, evidence, and the typed relationships between them.
 
 <Note>
   All graph reads and writes are strictly local. Zero room data reaches the Brain. The Brain (Neo4j + Pinecone) holds methodology intelligence — your room data never crosses that boundary.
@@ -43,7 +43,7 @@ The room graph is a SQLite database at `room/.room-graph/room.db`. It is the loc
 
 <Steps>
   <Step title="Pre-flight check">
-    Larry checks that `room/.room-graph/room.db` exists. If the graph is empty or missing, it explains how to start building it: "The graph builds as you file content — meetings, documents, methodology sessions."
+    Larry checks that `room/.mindrian/room.db` exists. If the graph is empty or missing, it explains how to start building it: "The graph builds as you file content — meetings, documents, methodology sessions."
   </Step>
   <Step title="Graph stats on first invocation">
     On first use, Larry surfaces a summary: total node count, edge count, and section coverage. This orients you before you start querying.

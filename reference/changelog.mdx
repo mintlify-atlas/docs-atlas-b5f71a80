@@ -1,7 +1,7 @@
 ---
-title: "MindrianOS Changelog and Release History"
+title: "MindrianOS Release Notes and Full Version Changelog"
 sidebarTitle: "Changelog"
-description: "Release notes for MindrianOS — track new commands, Brain integrations, hook changes, and breaking updates across versions."
+description: "MindrianOS version history and release notes — new commands, hooks, Brain integrations, bug fixes, and breaking changes across every release."
 ---
 
 MindrianOS follows semantic versioning with a beta suffix during active development: `major.minor.patch-beta.N`. The current version is **1.15.3-beta.29**. Beta releases ship on a continuous basis as phases complete; stable releases (no suffix) mark the end of a development arc. The complete release history is on GitHub.
@@ -46,6 +46,18 @@ This release resolves two long-standing causes of unusable portfolio-scan output
 
 ---
 
+## v1.15.3-beta.24 — 2026-07-16
+
+A pre-release snapshot captured in-progress work on Phase 227 (mode-select firing checkpoint, sweep, and Mode 3 routing) and Phase 229 (HUJI Pitch Feedback Module Stage A intake adapter) mid-flight. Neither phase was complete at cut time. Phase 227's full, finished feature set is recorded once under v1.15.3-beta.26 rather than duplicated across the interim tags it spanned.
+
+---
+
+## v1.15.3-beta.22 — 2026-07-16
+
+A pre-release snapshot mid-flight through Phase 227 (skill-description sweep landed here) and Phase 229 (PWS_grading recipe and score-and-continue rubric work). No discrete feature completed at this tag. See v1.15.3-beta.26 for the complete Phase 227 record.
+
+---
+
 ## v1.15.3-beta.20 — 2026-07-16
 
 This release window completed five phases that were under-documented at cut time.
@@ -71,6 +83,12 @@ This release window completed five phases that were under-documented at cut time
 
 ---
 
+## v1.15.3-beta.18 — 2026-07-13
+
+A pre-release snapshot. No discrete feature completed at this tag; work in progress at cut time is recorded under v1.15.3-beta.16 where the features completed.
+
+---
+
 ## v1.15.3-beta.16 — 2026-07-13
 
 ### Added
@@ -83,6 +101,18 @@ This release window completed five phases that were under-documented at cut time
 - **Web ingestion agent.** Paste a URL or run `/mos:research <url>` — after you approve at the card, the page is fetched, filed as a cited research artifact in `research/`, and its entities land in the room graph. Nothing is fetched or filed without your explicit verb.
 - **Pasted-URL sensor (SENS-15).** A bare URL in your turn offers an ingest card contextually. Never auto-files.
 - **Content-hash idempotency + SUPERSEDES versioning.** Re-ingesting an unchanged page is an honest no-op; a changed page files a new version linked to the prior one.
+
+---
+
+## v1.15.3-beta.14 — 2026-07-12
+
+### Fixed
+
+- **`check-card-fire.cjs` no longer force-fires on benign numbered lists.** A bare numbered-prose list (`1. / 2.`) now triggers the backstop only when a choice-framing cue (`?`, `which`, `would you like`, `pick`, `choose`, `select`, or `type 1`) appears inside the matched span or within the preceding ~150 characters. Genuine bracket-notation, `type 1, 2, or 3` literal, and multiline bracket-box alternatives remain unconditional.
+- **The Stop-hook `reason` slug no longer surfaces as a fake "Stop hook error" message.** The `reason` field is now a calm, human-safe phrase on both the intercept and degrade branches. The internal slug is preserved in the new local diagnostic log only.
+- **New local-only intercept diagnostic log** (`~/.mindrian/card-fire-intercepts.log`). Append-only JSONL capturing timestamp, session ID, original reason slug, gate signature, and truncated output text. TTL-pruned on every write. Local disk only — never the Brain, never a network wire.
+- **`gate-is-simple-binary` exemption no longer swallows genuine two-option forced-choice forks.** The exemption now requires labels to be YES/NO-shaped (via `isYesNoShapedGate`), not merely 2-in-number, so a real two-way strategic fork fires the card like a 3+-way fork would.
+- **MCP `room_state` reads re-resolve the active room per call.** The `status`, `analyze`, `compute-state`, `get-state`, and `suggest-next` branches previously read a boot-time closure `roomDir`, making mid-session room switches invisible and causing `status` to report "No room initialized" against rooms with real content.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "/mos:find-connections — Cross-Domain Pattern Discovery"
 sidebarTitle: "find-connections"
-description: "/mos:find-connections uses Brain semantic search to surface non-obvious connections between your room's entries and the methodology graph — analogies, precedents, and bridges."
+description: "/mos:find-connections queries the Brain graph for cross-domain connections — analogies, bridging frameworks, and surprising precedents from methodology."
 ---
 
 When you suspect your work touches a pattern in another field, `/mos:find-connections` traces cross-domain links through the Brain graph. It surfaces the connections you did not know to look for — not by keyword matching, but by meaning. The goal is the aha moment: "Your problem in domain A has the same structure as a solved problem in domain B, and the approach that worked there is directly applicable."
@@ -30,11 +30,11 @@ When you suspect your work touches a pattern in another field, `/mos:find-connec
   <Step title="Identify the exploration target">
     If you provided a concept or domain with the command, Larry uses it directly. If no argument was given, Larry infers from room state — the venture's primary domain, key concepts from `problem-definition/`, or frameworks currently in use. If neither is available, Larry asks: "What concept or domain do you want to explore? Or tell me two fields and I'll find what bridges them."
   </Step>
-  <Step title="Query immediate connections (Brain semantic search)">
-    Larry queries `brain_concept_connect` with your concept, pulling all immediate graph neighbors with their relationship types and confidence scores. This uses Brain's 12,485-vector semantic index across five namespaces — meaning-based matching, not keyword search.
+  <Step title="Query immediate connections (Brain graph query)">
+    Larry runs the `brain_concept_connect` Cypher pattern via `brain_query` against your concept, pulling all immediate graph neighbors with their relationship types and confidence scores. This traverses Brain's Neo4j framework graph — graph-structure matching, not keyword search.
   </Step>
   <Step title="Cross-domain bridge discovery">
-    If you provided two domains, Larry queries `brain_cross_domain` to find bridging concepts and frameworks that connect them through shared relationships. If only one domain was provided, Larry picks a surprising second domain from the first query's results and runs cross-domain to surface unexpected bridges.
+    If you provided two domains, Larry runs the `brain_cross_domain` Cypher pattern via `brain_query` to find bridging concepts and frameworks that connect them through shared relationships. If only one domain was provided, Larry picks a surprising second domain from the first query's results and runs the cross-domain pattern to surface unexpected bridges.
   </Step>
   <Step title="Surface the aha moments">
     Larry focuses on three types of insight:
@@ -47,19 +47,19 @@ When you suspect your work touches a pattern in another field, `/mos:find-connec
   </Step>
 </Steps>
 
-## What the Brain Searches
+## What the Brain Queries
 
-`/mos:find-connections` draws on Brain's semantic layer: 12,485 vectors across five namespaces at 1024 dimensions, covering the full teaching corpus.
+`/mos:find-connections` draws on Brain's Neo4j framework graph via `brain_query` — Cypher traversals over 27,904 nodes and 19,987 relationships.
 
-| Namespace | What it contains |
+| Graph layer | What it contains |
 |---|---|
-| `core` (8,555 vectors) | Core methodology and framework teaching material |
-| `materials` (1,775 vectors) | Teaching materials and curriculum content |
-| `reference` (1,690 vectors) | Reference frameworks and methodology documentation |
-| `tools` (242 vectors) | Tool and technique descriptions |
-| `graphrag` (144 vectors) | Graph-augmented retrieval corpus |
+| Concept nodes (9,131) | Domain concepts and cross-domain bridges |
+| Framework nodes (748) | Innovation and methodology frameworks |
+| `FEEDS_INTO` edges (163) | Framework-sequencing relationships — one framework's output becomes the next's input |
+| `ADDRESSES_PROBLEM_TYPE` | Which framework applies to which problem class |
+| `TRANSFORMS_OUTPUT_TO` | How one framework's output becomes another's input |
 
-Combined with the Brain's Neo4j framework graph (27,904 nodes, 19,987 relationships including 163 `FEEDS_INTO` framework-sequencing edges), the search finds not just what is semantically similar, but why things connect and what comes next.
+The Cypher traversals find not just structural neighbors, but why things connect — bridging frameworks, sequencing chains, and cross-domain paths — drawing on 30+ years of classroom-observed methodology relationships.
 
 ## Good Use Cases
 

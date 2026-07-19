@@ -1,7 +1,7 @@
 ---
-title: "Connect the Brain for Framework Intelligence"
+title: "Connect the MindrianOS Brain for Framework Intelligence"
 sidebarTitle: "Brain Setup"
-description: "The Brain is an optional Neo4j/Pinecone teaching graph that gives Larry framework chaining, semantic search, and calibrated grading. Set it up in two steps."
+description: "The Brain is an optional Neo4j/Pinecone teaching graph that sharpens Larry with live framework chaining, semantic search, and calibrated grading."
 ---
 
 The Brain is a remote intelligence service hosted at `mindrian-brain.onrender.com` that makes Larry sharper. Without it, every MindrianOS command still works — Larry teaches from embedded methodology references and your room context. With it, Larry knows which framework to reach for given where you are, can chain methods intelligently across your problem type, finds matches by meaning instead of keywords, and grades your room against calibrated data from real projects.
@@ -51,7 +51,8 @@ The textbook-vs-professor analogy: Tier 0 Larry is good. Tier 1 Larry is a maste
     Run this in your terminal — replace `<your-key>` with the key you received:
 
     ```bash
-    echo "MINDRIAN_BRAIN_KEY=<your-key>" > ~/.mindrian.env && chmod 600 ~/.mindrian.env
+    echo "MINDRIAN_BRAIN_KEY=<your-key>" > ~/.mindrian.env
+    chmod 600 ~/.mindrian.env
     ```
 
     The `chmod 600` is required. The key resolver refuses to load from a group- or world-readable file.

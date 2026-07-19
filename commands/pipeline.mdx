@@ -1,7 +1,7 @@
 ---
 title: "/mos:pipeline — Compose and Run a Framework Chain"
 sidebarTitle: "pipeline"
-description: "/mos:pipeline composes a multi-step framework chain from Brain FEEDS_INTO traversal and runs the autonomous steps unattended, stopping at human-judgment gates."
+description: "/mos:pipeline Brain-derives a framework chain and runs resolver-composed /mos: commands stage-by-stage, stopping at human-judgment gates."
 ---
 
 When you want several methodologies chained instead of run one-by-one, `/mos:pipeline` executes a multi-step pipeline with the room as the connecting tissue. It Brain-derives the framework sequence, composes it into resolver-verified `/mos:` commands, and runs the autonomous steps unattended — stopping only where human judgment is genuinely required. The Week 7 pattern for serious venture work.
@@ -20,12 +20,11 @@ When you want several methodologies chained instead of run one-by-one, `/mos:pip
 |---|---|
 | `undefined` | `UDP` |
 | `ill-defined` | `IDP` |
-| `wicked` | `WDP` |
-| `well-defined` | (direct) |
+| `well-defined` | `WDP` |
 
 ```
-/mos:pipeline --from-problem-type wicked
-/mos:pipeline --from-framework "Jobs to Be Done (JTBD)"
+/mos:pipeline --from-problem-type ill-defined
+/mos:pipeline --from-framework "Beautiful Question Framework"
 ```
 
 ## Entry modes
@@ -109,9 +108,13 @@ no /mos: for <framework> — run it manually; continuing
 
 The pipeline skips that step (or you run the framework manually) and continues to the next resolved command. It never invents a command for an unregistered framework.
 
+## Tier 0 behavior (no Brain)
+
+When Brain MCP is not connected, the `--from-problem-type` and `--from-framework` helpers fall back to the local `data/command-registry.json`. The resolver still produces a valid command sequence — framework-only advice degrades gracefully through the same resolver path, never fabricating a command.
+
 ## Standard chains
 
-These chains are defined in `docs/ARCHITECTURE-DEEP-DIVE.md` and available as named pipelines. Each arrow represents a `FEEDS_INTO` relationship where the left stage's output becomes the right stage's structured input.
+These chains are defined in the plugin's pipeline architecture and available as named pipelines. Each arrow represents a `FEEDS_INTO` relationship where the left stage's output becomes the right stage's structured input.
 
 | Chain | Stages | Best for |
 |---|---|---|
@@ -128,10 +131,14 @@ The structured handoffs between stages — what each stage's output becomes as t
 |---|---|---|---|
 | Domain Explorer | Sub-domains | Bono | Hats (one per perspective) |
 | Domain Explorer | Sub-domains | JTBD | Personas (one per stakeholder) |
+| Domain Explorer | Sub-domains | Scenario | Uncertainty axes |
+| Bono | Hat insights | JTBD | Context per persona |
 | Bono | Hat insights | Minto | Evidence for the pyramid |
 | JTBD | Unmet jobs | Minto | SCQA complication |
 | JTBD | Unmet jobs | Devil's Advocate | Assumptions to test |
+| Minto | Thesis | Devil's Advocate | Target for destruction |
 | Minto | Thesis | Investment Thesis | Core thesis |
+| Devil's Advocate | Survivors | Investment Thesis | Validated evidence |
 | HSI | Bridges | Domain Explorer | New domains to map |
 | Reverse Salient | Bottlenecks | Minto | Complication framing |
 
@@ -165,17 +172,17 @@ room/
 ## Example
 
 ```
-/mos:pipeline --from-problem-type wicked
+/mos:pipeline --from-problem-type ill-defined
 ```
 
 ```
-[PIPELINE] Brain-derived chain for problem type: wicked
+[PIPELINE] Brain-derived chain for problem type: ill-defined
 
 Recommended chain (FEEDS_INTO traversal):
   Stage 1: Domain Explorer      → /mos:explore-domains
-  Stage 2: Reverse Salient      → /mos:reverse-salient
+  Stage 2: Reverse Salient      → /mos:map-unknowns
   Stage 3: JTBD                 → /mos:analyze-needs
-  Stage 4: Bono (Six Hats)      → /mos:six-hats
+  Stage 4: Bono (Six Hats)      → /mos:bono
   Stage 5: Minto Pyramid        → /mos:minto
 
 Autonomy map:
@@ -198,7 +205,7 @@ Start from Stage 1? [yes] [modify chain] [exit]
   <Card title="/mos:status" href="/commands/status">
     Check which sections are populated and healthy before choosing a chain.
   </Card>
-  <Card title="/mos:grade" href="/commands/grade">
-    Score room quality before or after running a pipeline chain.
+  <Card title="/mos:graph" href="/commands/graph">
+    Inspect the FEEDS_INTO relationships that drive Brain-derived chain selection.
   </Card>
 </CardGroup>

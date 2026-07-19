@@ -1,7 +1,7 @@
 ---
 title: "/mos:research — Web Research as Typed Graph Evidence"
 sidebarTitle: "research"
-description: "/mos:research pulls fresh evidence from the web, extracts room context first, cross-references findings with the Brain, and wires accepted findings as typed EvidenceClaim nodes."
+description: "/mos:research pulls web evidence, cross-references with the Brain, and wires accepted findings as EvidenceClaim nodes — context-aware and room-scoped."
 ---
 
 When you need fresh evidence from the web cross-referenced with the Brain methodology graph, `/mos:research` runs a dual-source pull — public signal plus calibrated framework. It extracts your room context first, surfaces each finding with a candidate filing location and a decision card, then wires accepted findings as typed graph data other commands can consume. With Brain connected, every finding is semantically cross-referenced against 12,485 methodology vectors. Without Brain (Tier 0), research still runs and files typed evidence — the web-only path works fully.
@@ -53,7 +53,7 @@ When you need fresh evidence from the web cross-referenced with the Brain method
 
 <CardGroup cols={2}>
   <Card title="EvidenceClaim nodes" icon="circle-nodes">
-    Each approved finding becomes a typed `EvidenceClaim` node in your room's SQLite graph at `room/.room-graph/room.db`, with provenance: URL, `retrieved_at` timestamp, and evidence tier.
+    Each approved finding becomes a typed `EvidenceClaim` node in your room's SQLite graph at `room/.mindrian/room.db`, with provenance: URL, `retrieved_at` timestamp, and evidence tier.
   </Card>
   <Card title="Typed edges" icon="arrow-right-arrow-left">
     `INFORMS`, `CONTRADICTS`, `SUPERSEDES`, and `REJECTED_BECAUSE` cascade edges are written to the local graph — never to the Brain. These edges are queryable via `/mos:graph`.
@@ -78,7 +78,7 @@ When you need fresh evidence from the web cross-referenced with the Brain method
 | **Without Brain (Tier 0)** | The `brain` lens is skipped with a typed `skipped` provider status. All other lenses run normally. Research still files typed evidence — nothing is blocked. |
 
 <Warning>
-  Zero local room data ever reaches the Brain. The only Brain touch in this command is a read-only generic methodology query. All graph writes land in your local `room/.room-graph/room.db` via `navigation.cjs`.
+  Zero local room data ever reaches the Brain. The only Brain touch in this command is a read-only generic methodology query. All graph writes land in your local `room/.mindrian/room.db` via `navigation.cjs`.
 </Warning>
 
 ## Recovery Modes

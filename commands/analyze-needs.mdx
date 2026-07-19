@@ -1,7 +1,7 @@
 ---
-title: "/mos:analyze-needs — Map Who Has This Problem"
-sidebarTitle: "analyze-needs"
-description: "/mos:analyze-needs runs a structured needs analysis — who has the problem, how badly, what they have tried, and why existing solutions fall short."
+title: "/mos:analyze-needs — Score Customer Jobs to Be Done"
+sidebarTitle: "Analyze Needs"
+description: "/mos:analyze-needs scores customer jobs by importance vs. satisfaction — Larry extracts the real job through conversation, never accepting features."
 ---
 
 When you need to know which customer jobs matter most, `/mos:analyze-needs` scores them by **importance versus satisfaction**. It works best after you have a customer segment defined — the command starts from a real person, not a persona, and pulls the actual job statement out through conversation before adding the importance and satisfaction scores. Features are explicitly not jobs; Larry will redirect every time. The emotional and social dimensions of the job are never skipped. This command is the structured backbone of problem-definition work inside the PWS methodology.
@@ -16,6 +16,10 @@ No arguments required. Larry reads `room/STATE.md` for existing venture context 
 
 <Note>
   **Prerequisite:** A customer segment defined — even loosely. If you don't have one yet, `/mos:beautiful-question` is the right first move. The needs analysis needs a real person to work from, not a hypothetical user class.
+</Note>
+
+<Note>
+  `autonomous_safe: true` — this command runs the Jobs to Be Done (JTBD) framework without requiring human confirmation gates. It files the artifact only after asking for your approval.
 </Note>
 
 ## What happens
@@ -66,7 +70,7 @@ The artifact contains:
 - **Opportunity surface** — the highest-gap jobs ranked by importance minus satisfaction
 
 <Tip>
-  The JTBD analysis artifact is the primary input for `/mos:jtbd` (which deepens the job taxonomy) and for `/mos:bono` (where the jobs become research axes across the six hats).
+  The JTBD analysis artifact feeds directly into `/mos:bono`, where the scored jobs become debate axes across the six hats. Use `/mos:jtbd set find-problem` to orient the room's active job signal before running the analysis.
 </Tip>
 
 ## Example

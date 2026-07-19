@@ -1,10 +1,10 @@
 ---
-title: "/mos:grade — Score Problem-Discovery Quality"
+title: "/mos:grade — Grade Problem-Discovery Quality Now"
 sidebarTitle: "grade"
-description: "/mos:grade scores your room on six problem-discovery components in under a minute. The lightweight grade; use /mos:deep-grade for full calibrated assessment from 100+ projects."
+description: "/mos:grade scores your room on five grading components in under a minute — the fast quality check for problem-discovery thinking."
 ---
 
-When you want a fast read on problem-discovery quality, `/mos:grade` scores the room on six components in under a minute. The lightweight cousin of `/mos:deep-grade` — it runs without Brain and delivers Larry's honest assessment of where your venture thinking stands right now.
+When you want a fast read on problem-discovery quality, `/mos:grade` scores the room on five components in under a minute. The lightweight cousin of a full calibrated assessment — it runs without Brain and delivers Larry's honest evaluation of where your venture thinking stands right now.
 
 ## Usage
 
@@ -31,7 +31,7 @@ Add `--full` to dispatch eight parallel grading agents — one per room section 
   <Step title="Room state analysis">
     Larry reads every populated section in the room silently — `room/STATE.md` plus all section artifacts. The entire venture is graded, not just one section.
   </Step>
-  <Step title="Six-component scoring">
+  <Step title="Five-component scoring">
     Each component is scored 1–10, then weighted into a final grade. The scoring table is always shown — no exceptions.
   </Step>
   <Step title="Reality check">
@@ -45,9 +45,9 @@ Add `--full` to dispatch eight parallel grading agents — one per room section 
   </Step>
 </Steps>
 
-## The six grading components
+## The five grading components
 
-These are the Brain Grading Engine's static rubric weights, used when Brain MCP is not connected.
+These are the Brain Grading Engine's rubric weights, used for calibrated scoring against the real project corpus.
 
 | Component | Weight | What it measures |
 |---|---|---|
@@ -66,7 +66,7 @@ These are the Brain Grading Engine's static rubric weights, used when Brain MCP 
 | Aspect | `/mos:grade` (no Brain) | `/mos:grade` (Brain connected) |
 |---|---|---|
 | Calibration data | None — static rubric | Real distribution from 100+ projects |
-| Scoring model | 6-component static | Delegates to the Grading Agent |
+| Scoring model | 5-component static | Delegates to the Grading Agent |
 | Percentile ranking | No | Yes |
 | Assessment engine | Larry directly | Grading Agent → Larry wraps results |
 
@@ -100,7 +100,7 @@ room/
 /mos:grade
 ```
 
-Larry reads all populated sections, shows the calibration distribution preview, then delivers the six-component scoring table:
+Larry reads all populated sections, shows the calibration distribution preview, then delivers the five-component scoring table:
 
 ```
 [GRADE] Room: my-venture
@@ -130,15 +130,15 @@ Top 3 Actions
 
 <CardGroup cols={2}>
   <Card title="/mos:suggest-next" href="/commands/suggest-next">
-    Brain-calibrated assessment against 100+ real projects with percentile ranking. Requires Brain MCP.
-  </Card>
-  <Card title="/mos:suggest-next" href="/commands/suggest-next">
     Get Larry's ranked recommendations for what to work on after seeing your grade.
+  </Card>
+  <Card title="/mos:pipeline" href="/commands/pipeline">
+    Run a multi-step methodology chain to systematically address the gaps your grade reveals.
   </Card>
   <Card title="/mos:status" href="/commands/status">
     Fast room health check — section coverage, health glyphs, and governing thoughts at a glance.
   </Card>
-  <Card title="/mos:pipeline" href="/commands/pipeline">
-    Run a multi-step methodology chain to systematically address the gaps your grade reveals.
+  <Card title="/mos:find-connections" href="/commands/find-connections">
+    Explore cross-section coherence to strengthen the logical argument component score.
   </Card>
 </CardGroup>

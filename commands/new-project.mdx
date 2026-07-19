@@ -1,10 +1,10 @@
 ---
-title: "/mos:new-project — Scaffold a New Data Room"
-sidebarTitle: "new-project"
-description: "/mos:new-project creates the Data Room folder structure, initializes the SQLite graph, and registers the room. Usually invoked by /mos:ignite."
+title: "/mos:new-project — Create and Scaffold a New Data Room"
+sidebarTitle: "New Project"
+description: "/mos:new-project creates the room scaffold and registers it in the room registry. The first move of every Mindrian journey, usually invoked by /mos:ignite."
 ---
 
-`/mos:new-project` is the scaffold backend for room creation. It creates the folder structure, initializes the SQLite knowledge graph, registers the room in the global registry, and seeds initial entries from anything you shared in the conversation. In most cases you will not invoke this directly — `/mos:ignite` calls it for you after the B2 blueprint approval gate. Direct invocation still works, and the full conversation-to-room flow is preserved either way.
+When you are starting a new venture, `/mos:new-project` creates the room scaffolding and registers it in the room registry — the first move of every Mindrian journey. It creates the folder structure, initializes the SQLite knowledge graph, and seeds initial entries from anything you shared in the conversation. In most cases you will not invoke this directly — `/mos:ignite` calls it for you after the B2 blueprint approval gate. Direct invocation still works, and the full conversation-to-room flow is preserved either way.
 
 <Note>
   `/mos:ignite` is the recommended front door. It adds the persona-pick gate (B1), the blueprint approval gate (B2), and the first-win gate (B3) on top of what `/mos:new-project` does alone. Use `/mos:new-project` directly when you need the scaffold backend without the birth conversation.
@@ -36,7 +36,7 @@ Each section gets a `ROOM.md` that carries the section's purpose, venture-stage 
 
 ## The SQLite Knowledge Graph
 
-The room's knowledge graph is initialized at `room/.room-graph/room.db`. This is the local mind that powers contradiction detection, cross-section connection finding, and evidence tiering. Every claim you make and every decision you record lands here as a typed edge.
+The room's SQLite knowledge graph (`room.db`) is initialized as part of room creation. This is the local mind that powers contradiction detection, cross-section connection finding, and evidence tiering. Every claim you make and every decision you record lands here as a typed edge.
 
 ## Room Registration
 

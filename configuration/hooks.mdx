@@ -1,7 +1,7 @@
 ---
-title: "MindrianOS Lifecycle Hooks Reference"
+title: "MindrianOS Lifecycle Hooks: All 12 Hook Events Explained"
 sidebarTitle: "Hooks"
-description: "MindrianOS ships 9 Claude Code lifecycle hooks — SessionStart, PreCompact, PostCompact, Stop, SessionEnd, PreToolUse, PostToolUse, UserPromptSubmit, FileChanged, CwdChanged, SubagentStop, TaskCompleted."
+description: "MindrianOS wires 12 Claude Code lifecycle hooks to keep room context live, enforce write boundaries, and drain background queues automatically."
 ---
 
 MindrianOS registers a set of Claude Code lifecycle hooks in `hooks/hooks.json`. These hooks fire automatically during normal Claude Code operation — you do not configure them, and you do not call them. They are the internal machinery that keeps room context alive across compacts, enforces write boundaries, drains background queues, and ensures your session state is always consistent. This page documents what each hook event does so you can understand what is happening during a session.

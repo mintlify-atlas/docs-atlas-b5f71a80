@@ -1,7 +1,7 @@
 ---
-title: "/mos:status — Session State and Room Health"
+title: "/mos:status — Room Health and Governing Thoughts"
 sidebarTitle: "status"
-description: "/mos:status shows the current room's health, active JTBD, methodology stage, session token spend, and what needs attention — your session dashboard."
+description: "/mos:status shows the governing thought and health glyph for every room section — the 10-second room snapshot before grading or next steps."
 ---
 
 When you need a fast read on the room's current state, `/mos:status` shows the governing thought per section plus health glyphs. The 10-second status check — run it after filling a section, before grading, or any time you need a grounded sense of where the venture stands.
@@ -52,10 +52,6 @@ Stale sections carry a `(stale: reason)` suffix. Empty sections carry `(no MINTO
   What "room health" means in practice: section coverage (how many sections have a governing thought), evidence quality (the `reasoning_health_score` distribution), and whether any sections are stale. A healthy room has `check` on 4+ sections and no `low` sections going into a grade.
 </Note>
 
-## The statusline
-
-MindrianOS injects a persistent statusline segment into every session showing the current spend and cap. `/mos:status` surfaces the session token spend as part of its report, so you always know how much of your session budget has been used.
-
 ## Example output
 
 Running `/mos:status` on a five-section room:
@@ -71,7 +67,7 @@ low    team-execution:        "Team of 3 with biotech + IT mix"
 
 5 sections, 4 filled, 1 stale, median reasoning health 0.55
 
-Next: /mos:reason competitive-analysis to build the governing thought
+Next: /mos:reason <section> to regenerate stale MINTOs
 Or:   talk to Larry about a specific section
 ```
 
@@ -100,7 +96,6 @@ warn   solution-design:       "API-first middleware layer" (reasoning_health: 0.
 --     team-execution:        (no MINTO yet)
 
 6 sections, 2 check, 1 warn, 3 empty, median health 0.48
-Session: 4,200 tokens used
 
 Next: /mos:reason competitive-analysis
 ```

@@ -1,7 +1,7 @@
 ---
-title: "/mos:jtbd — Jobs to Be Done Framework Analysis"
+title: "/mos:jtbd — Inspect and Set the Active Job Signal"
 sidebarTitle: "jtbd"
-description: "/mos:jtbd runs the Jobs to Be Done framework — Larry identifies the functional, emotional, and social jobs customers are hiring your solution to do."
+description: "/mos:jtbd shows, sets, or clears the per-room JTBD signal — the job-to-be-done that orients every subsequent command Larry runs in this room."
 ---
 
 When you need to see or set the active job-to-be-done for this room, `/mos:jtbd` shows the **per-room signal** that tells Larry what kind of work you are doing right now. The JTBD state is not just a label — it is the routing signal every subsequent `/mos:` command reads to orient itself. A `validate-idea` job sharpens Bono's grid toward the risky assumption; a `find-problem` job opens up the Beautiful Question walk. The heuristic classifier updates the JTBD signal silently per turn, but `/mos:jtbd` lets you inspect what Larry believes the job is, override it when the classifier mis-routed, and audit the full transition history. Most users never need this command directly. When you do, it is usually because Larry is reasoning from the wrong job.
@@ -153,18 +153,17 @@ Clears the current JTBD to null. Writes a history row with `trigger=manual_clear
 
 Renders Shape E with the last 20 transitions in chronological-recent-first order. Each row shows `from → to`, trigger type, and timestamp.
 
-## Pipeline position
+## How the JTBD signal is used
 
-In the PWS methodology chain, the JTBD signal flows in two directions:
+The active JTBD is the first thing Larry reads before rendering any methodology surface. Every `/mos:` command that has a `serves_jtbd` list checks the active signal at startup and adjusts its behaviour accordingly:
 
 ```
-Domain Explorer sub-domains → /mos:jtbd (stakeholders per sub-domain)
-/mos:bono hat insights      → /mos:jtbd (context per persona)
-/mos:jtbd unmet jobs        → /mos:structure-argument (SCQA complication)
-/mos:jtbd unmet jobs        → Devils Advocate (assumptions to test)
+/mos:jtbd set validate-idea → /mos:bono (grid sharpens toward risky assumptions)
+/mos:jtbd set find-problem  → /mos:beautiful-question (Why walk opens wider)
+/mos:jtbd set audit-room    → /mos:status (health check surfaces gap analysis)
 ```
 
-The active JTBD also orients every other command's behaviour — it is the first thing Larry reads before rendering any methodology surface.
+The heuristic classifier updates the signal silently on each turn. `/mos:jtbd` is the manual override when the classifier mis-routes.
 
 <Note>
   The JTBD state file is per-room, never global: `<roomDir>/.mindrian/jtbd-state.json`. Manual overrides are sticky for 24 hours. The classifier runs silently on every turn and may update the state between your sessions.
